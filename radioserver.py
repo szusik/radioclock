@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flasgger import Swagger
-import modules.clock
+#import modules.clock
 import os
 import string
 
@@ -38,4 +38,6 @@ def hello():
     """ 
     location = os.path.dirname(os.path.realpath(__file__))
     return 'Hello, World '+location 
-
+if __name__ == '__main__':
+    app = create_app()
+    app.run()    
