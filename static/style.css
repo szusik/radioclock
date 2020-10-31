@@ -1,0 +1,45 @@
+div.main_window {
+    width: 508px;
+    margin: auto;
+}
+
+div.app_row {
+    width: 100%;
+}
+
+div.app {
+    width: 250px;
+    height: 250px;
+    margin: 2px;
+    background-color: darkcyan;
+    float: left;
+    cursor: pointer;
+}
+
+div#radioON {
+    background-image: url('/static/radio.png');
+}
+
+div#soundOFF {
+    background-image: url('/static/musicoff.png');
+}
+
+div#clockON {
+    background-image: url('/static/clock.png');
+}
+
+div#clockOFF {
+    background-image: url('/static/clockoff.png');
+}
+
+div#volumeUP {
+    background-image: url('/static/volumeup.png');
+}
+
+div#volumeDOWN {
+    background-image: url('/static/volumedown.png');
+}
+
+div#lulabyON {
+    background-image: url('/static/lulaby.png');
+}
