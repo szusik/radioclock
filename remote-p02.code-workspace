@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "SSH FS - pi0-2",
+			"uri": "ssh://pi0-2/"
+		}
+	],
+	"settings": {
+		"sshfs.configs": [
+			{
+				"name": "pi0-2",
+				"host": "192.168.0.252",
+				"root": "/opt/radioclock/radioclock",
+				"agent": "$SSH_AUTH_SOCK",
+				"username": "pi",
+				"password": true
+			}
+		]
+	}
+}

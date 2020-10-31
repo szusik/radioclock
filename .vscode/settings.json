@@ -1,3 +1,13 @@
 {
-    "python.pythonPath": "C:\\WORK\\miniconda3\\python.exe"
+    "python.pythonPath": "C:\\WORK\\miniconda3\\python.exe",
+    "sshfs.configs": [
+        {
+            "name": "pi0-2",
+            "host": "192.168.0.252",
+            "root": "/opt/radioclock/radioclok",
+            "agent": "$SSH_AUTH_SOCK",
+            "username": "pi",
+            "password": true
+        }
+    ]
 }
