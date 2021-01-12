@@ -8,22 +8,33 @@
         <div id="main_window" class="main_window">
             <div id="app_panel" class="app_panel">
                 <div class="app_row">
-                    <div class="app" id="radioON" onclick="$.ajax('/api/radio/start')"></div>
-                    <div class="app" id="soundOFF" onclick="$.ajax('/api/music/stop')"></div>
+                    <div class="app" id="radioON" onclick="golink(this,'/api/radio/start')"></div>
+                    <div class="app" id="soundOFF" onclick="golink(this,'/api/music/stop')"></div>
                 </div>
                 <div class="app_row">
-                    <div class="app" id="clockON" onclick="$.ajax('/api/clock/start')"></div>
-                    <div class="app" id="clockOFF" onclick="$.ajax('/api/clock/stop')"></div>
+                    <div class="app" id="clockON" onclick="golink(this,'/api/clock/start')"></div>
+                    <div class="app" id="clockOFF" onclick="golink(this,'/api/clock/stop')"></div>
                 </div>
                 <div class="app_row">
-                    <div class="app" id="volumeUP" onclick="$.ajax('/api/volume/up')"></div>
-                    <div class="app" id="volumeDOWN" onclick="$.ajax('/api/volume/down')"></div>
+                    <div class="app" id="volumeUP" onclick="golink(this,'/api/volume/up')"></div>
+                    <div class="app" id="volumeDOWN" onclick="golink(this,'/api/volume/down')"></div>
                 </div>
                 <div class="app_row">
-                    <div class="app" id="lulabyON" onclick="$.ajax('/api/lulaby/start')"></div>
-                    <div class="app" id="soundOFF" onclick="$.ajax('/api/music/stop')"></div>
+                    <div class="app" id="lulabyON" onclick="golink(this,'/api/lulaby/start')"></div>
+                    <div class="app" id="soundOFF" onclick="golink(this,'/api/music/stop')"></div>
                 </div>
             </div>
         </div>
+        <script type="text/javascript">
+            var golink = function(divObj, apipath) {
+                $(divObj).addClass("choosen");
+                $.ajax(apipath);
+                setTimeout(function(){
+                    $(divObj).removeClass("choosen");
+                },1000);
+               
+            }
+        </script>
+
     </body>
 </html>

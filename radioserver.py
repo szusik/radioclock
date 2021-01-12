@@ -10,6 +10,7 @@ from modules.statusanswer import statusAnswer
 from modules.stoppableThread import StoppableThread,ExeContext
 import subprocess
 from modules.radio import playRadio, killMusic,playLulaby
+from modules.soundvolume import getSoundVolume, setSoundVolume
 
 app = Flask(__name__)
 app.config['SWAGGER'] = {
@@ -25,7 +26,6 @@ app.config['SWAGGER'] = {
         }
     ]
 }
-app.url_for('static', filename='style.css')
 
 # Create swagger definition
 swagger = Swagger(app) 
@@ -146,7 +146,47 @@ def lulabyStart():
     radio = threading.Thread(target=playLulaby, args=())
     radio.start()
     return statusAnswer("Lulaby playing")
-ExeContext.displayThread = StoppableThread(target=runClock, args=(0.2,))
+@app.route('/api/volume/down')
+def volumeDown():
+    """Volume down by 10%
+    ---
+    responses:
+      200:
+        description: Status answer
+        schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: Status answer.
+    """
+    volume = getSoundVolume()
+    volume -= 10
+    if volume<0:
+      volume = 0
+    status = setSoundVolume(volume)
+    return statusAnswer(status)
+@app.route('/api/volume/up')
+def volumeUp():
+    """Volume UP by 10%
+    ---
+    responses:
+      200:
+        description: Status answer
+        schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: Status answer.
+    """
+    volume = getSoundVolume()
+    volume +=10
+    if volume>100:
+      volume = 100
+    status = setSoundVolume(volume)
+    return statusAnswer(status)
+ExeContext.displayThread = StoppableThread(target=runClock, args=(0.1,))
 ExeContext.displayThread.start()
 if __name__ == '__main__':
     app = create_app()

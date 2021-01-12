@@ -43,3 +43,7 @@ div#volumeDOWN {
 div#lulabyON {
     background-image: url('/static/lulaby.png');
 }
+
+div.choosen {
+    background-color: chocolate;
+}

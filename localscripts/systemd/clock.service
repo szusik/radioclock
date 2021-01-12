@@ -1,0 +1,12 @@
+[Unit]
+Description=Displays clock on scroll phat
+
+[Service]
+User=root
+WorkingDirectory=/opt/radioclock/radioclock
+ExecStart=/opt/radioclock/clock.sh
+ExecStop=/opt/radioclock/clock-stop.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
