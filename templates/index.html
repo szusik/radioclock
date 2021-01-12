@@ -7,6 +7,9 @@
     <body>
         <div id="main_window" class="main_window">
             <div id="app_panel" class="app_panel">
+                <div class="app_state">
+                    <p class="state_line"></p>
+                </div>
                 <div class="app_row">
                     <div class="app" id="radioON" onclick="golink(this,'/api/radio/start')"></div>
                     <div class="app" id="soundOFF" onclick="golink(this,'/api/music/stop')"></div>
@@ -31,9 +34,13 @@
                 $.ajax(apipath);
                 setTimeout(function(){
                     $(divObj).removeClass("choosen");
-                },1000);
-               
+                },1000);               
             }
+            $(document).ajaxComplete(function( event, xhr, settings ) {
+                
+                    $( ".state_line" ).text( settings.url+" : " + xhr.status + " - "+ xhr.statusText );
+                
+            })
         </script>
 
     </body>
