@@ -186,6 +186,22 @@ def volumeUp():
       volume = 100
     status = setSoundVolume(volume)
     return statusAnswer(status)
+@app.route('/api/volume/level')
+def volumeUp():
+    """Volume level check
+    ---
+    responses:
+      200:
+        description: Status answer
+        schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: Status answer.
+    """
+    volume = getSoundVolume()
+    return statusAnswer(volume)
 ExeContext.displayThread = StoppableThread(target=runClock, args=(0.1,))
 ExeContext.displayThread.start()
 if __name__ == '__main__':
