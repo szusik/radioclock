@@ -22,8 +22,8 @@
                     <div class="app" id="clockOFF" onclick="golink(this,'/api/clock/stop')"></div>
                 </div>
                 <div class="app_row">
-                    <div class="app" id="volumeUP" onclick="golink(this,'/api/volume/up')"></div>
-                    <div class="app" id="volumeDOWN" onclick="golink(this,'/api/volume/down')"></div>
+                    <div class="app" id="volumeUP" onclick="golink(this,'/api/volume/up');updateVolume"></div>
+                    <div class="app" id="volumeDOWN" onclick="golink(this,'/api/volume/down');updateVolume"></div>
                 </div>
                 <div class="app_row">
                     <div class="app" id="lulabyON" onclick="golink(this,'/api/lulaby/start')"></div>
@@ -49,14 +49,15 @@
                 $( ".state_line" ).text( "Calling " + settings.url+" ... ");
             
             })
-            $(document).ready(function(){
+            $(document).ready(updateVolume)
+
+            function updateVolume(){
                 $.ajax("/api/volume/level").done(
                     function(data) { //data is a json object of StatusAnswer object response 
                         $(".volume_line").text("Current volume: " +data.status);
                     }
                 );
-
-            })
+            }
         </script>
 
     </body>
