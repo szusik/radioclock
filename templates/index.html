@@ -22,11 +22,11 @@
                     <div class="app" id="clockOFF" onclick="golink(this,'/api/clock/stop')"></div>
                 </div>
                 <div class="app_row">
-                    <div class="app" id="volumeUP" onclick="golink(this,'/api/volume/up');updateVolume"></div>
-                    <div class="app" id="volumeDOWN" onclick="golink(this,'/api/volume/down');updateVolume"></div>
+                    <div class="app" id="volumeUP" onclick="golink(this,'/api/volume/up');updateVolume()"></div>
+                    <div class="app" id="volumeDOWN" onclick="golink(this,'/api/volume/down');updateVolume()"></div>
                 </div>
                 <div class="app_row">
-                    <div class="app" id="lulabyON" onclick="golink(this,'/api/lulaby/start')"></div>
+                    <div class="app" id="lulabyON" onclick="golink(this,'/api/lulaby/start');updateVolume()"></div>
                     <div class="app" id="soundOFF" onclick="golink(this,'/api/music/stop')"></div>
                 </div>
             </div>
