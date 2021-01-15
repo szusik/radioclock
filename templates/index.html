@@ -10,6 +10,9 @@
                 <div class="app_state">
                     <p class="state_line"></p>
                 </div>
+                <div class="app_state">
+                    <p class="volume_line"></p>
+                </div>
                 <div class="app_row">
                     <div class="app" id="radioON" onclick="golink(this,'/api/radio/start')"></div>
                     <div class="app" id="soundOFF" onclick="golink(this,'/api/music/stop')"></div>
@@ -40,6 +43,19 @@
                 
                     $( ".state_line" ).text( settings.url+" : " + xhr.status + " - "+ xhr.statusText );
                 
+            })
+            $(document).ajaxSend(function( event, xhr, settings ) {
+                
+                $( ".state_line" ).text( "Calling " + settings.url+" ... ");
+            
+            })
+            $(document).ready(function(){
+                $.ajax("/api/volume/level").done(
+                    function(data) { //data is a json object of StatusAnswer object response 
+                        $(".volume_line").text("Current volume: " +data.status);
+                    }
+                );
+
             })
         </script>
 
