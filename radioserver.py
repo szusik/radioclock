@@ -187,7 +187,7 @@ def volumeUp():
     status = setSoundVolume(volume)
     return statusAnswer(status)
 @app.route('/api/volume/level')
-def volumeUp():
+def volumeLevel():
     """Volume level check
     ---
     responses:

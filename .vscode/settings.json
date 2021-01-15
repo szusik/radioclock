@@ -1,5 +1,4 @@
 {
-    "python.pythonPath": "C:\\WORK\\miniconda3\\python.exe",
     "sshfs.configs": [
         {
             "name": "pi0-2",

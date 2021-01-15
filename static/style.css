@@ -7,6 +7,10 @@ div.app_row {
     width: 100%;
 }
 
+div.app_state {
+    min-height: 30px;
+}
+
 div.app {
     width: 250px;
     height: 250px;
