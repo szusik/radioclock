@@ -31,8 +31,13 @@ app.config['SWAGGER'] = {
 swagger = Swagger(app) 
 
 @app.route('/')
+@app.route('/index.html')
 def index():
   return render_template("index.html")
+
+@app.route('/manifest.json')
+def manifest():
+  return render_template("manifest.json")
 
 @app.route('/api/hello')
 def hello():
