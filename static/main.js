@@ -3,7 +3,7 @@ window.onload = () => {
   
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-               .register('./sw.js');
+               .register('/static/sw.js');
     }
   }
 
@@ -22,3 +22,18 @@ function updateVolume(){
         }
     );
 }
+
+$.ajaxSetup({
+    async: false
+});
+$(document).ajaxComplete(function( event, xhr, settings ) {
+    
+        $( ".state_line" ).text( settings.url+" : " + xhr.status + " - "+ xhr.statusText );
+    
+})
+$(document).ajaxSend(function( event, xhr, settings ) {
+    
+    $( ".state_line" ).text( "Calling " + settings.url+" ... ");
+
+})
+$(document).ready(updateVolume())

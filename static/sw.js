@@ -1,7 +1,6 @@
 var cacheName = 'radioclock';
 var filesToCache = [
   '/',
-  '/index.html',
   '/static/style.css',
   '/static/main.js',
   '/static/clock.png',
@@ -11,9 +10,7 @@ var filesToCache = [
   '/static/radio.png',
   '/static/volumedown.png',
   '/static/volumeup.png',
-  '/static/jquery-3.5.1.min.js',
-  '../index.html',
-  '../'
+  '/static/jquery-3.5.1.min.js'
 ];
 
 /* Start the service worker and cache all of the app's content */
@@ -27,8 +24,8 @@ self.addEventListener('install', function(e) {
 
 /* Serve cached content when offline */
 self.addEventListener('fetch', function(e) {
-  e.respondWith(
-    console.log(e.request.url),
+  console.log(e.request.url)
+  e.respondWith(    
     caches.match(e.request).then(function(response) {
       return response || fetch(e.request);
     })
