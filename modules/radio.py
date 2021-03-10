@@ -17,7 +17,7 @@ def killMusic():
         print("Unable to stop playing")
     return
 def playLulaby():
-    command = "amixer -c 1 set Speaker 70%; mplayer /opt/music/ajde-jano.webm"
+    command = "amixer -c 1 set Speaker 90%; mplayer /opt/music/ajde-jano.webm"
     try:
         res = subprocess.call(command, shell = True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
