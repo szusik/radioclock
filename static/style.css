@@ -12,12 +12,14 @@ div.app_state {
 }
 
 div.app {
-    width: 250px;
-    height: 250px;
+    width: 200px;
+    height: 200px;
     margin: 2px;
     background-color: darkcyan;
     float: left;
     cursor: pointer;
+    background-repeat: no-repeat;
+    background-size: 200px 200px;
 }
 
 div#radioON {
