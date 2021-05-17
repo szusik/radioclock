@@ -7,9 +7,15 @@ window.onload = () => {
     }
   }
 
-var golink = function(divObj, apipath) {
+var golink = function(divObj, apipath, afterFunction) {
     $(divObj).addClass("choosen");
-    $.ajax(apipath);
+    $.ajax(apipath).done(
+        function(data) {
+            if (afterFunction!==undefined) {
+                eval(afterFunction)
+            }
+        }
+    );
     setTimeout(function(){
         $(divObj).removeClass("choosen");
     },1000);               

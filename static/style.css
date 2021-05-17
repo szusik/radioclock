@@ -24,6 +24,10 @@ div#radioON {
     background-image: url('/static/radio.png');
 }
 
+div#radio357 {
+    background-image: url('/static/radio357.png');
+}
+
 div#soundOFF {
     background-image: url('/static/musicoff.png');
 }
@@ -46,6 +50,10 @@ div#volumeDOWN {
 
 div#lulabyON {
     background-image: url('/static/lulaby.png');
+}
+
+div#lulabyTwo {
+    background-image: url('/static/lulaby2.png');
 }
 
 div.choosen {

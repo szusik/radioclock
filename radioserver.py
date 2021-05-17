@@ -99,8 +99,8 @@ def clockStop():
     if ExeContext.displayThread is not None:
         ExeContext.displayThread.stop()
     return statusAnswer("Clock stopped")
-@app.route('/api/radio/start')
-def radioStart():
+@app.route('/api/radio/start/<radio_id>')
+def radioStart(radio_id):
     """Start playing radio
     ---
     responses:
@@ -114,7 +114,7 @@ def radioStart():
                 description: Status answer.
     """
     killMusic()
-    radio = threading.Thread(target=playRadio, args=())
+    radio = threading.Thread(target=playRadio, args=(radio_id,))
     radio.start()
     return statusAnswer("Radio started")
 @app.route('/api/music/stop')
@@ -133,8 +133,8 @@ def radioStop():
     """
     killMusic()
     return statusAnswer("Music stopped")
-@app.route('/api/lulaby/start')
-def lulabyStart():
+@app.route('/api/lulaby/start/<lul_id>')
+def lulabyStart(lul_id):
     """Start playing lulaby
     ---
     responses:
@@ -148,7 +148,7 @@ def lulabyStart():
                 description: Status answer.
     """
     killMusic()
-    radio = threading.Thread(target=playLulaby, args=())
+    radio = threading.Thread(target=playLulaby, args=(lul_id,))
     radio.start()
     return statusAnswer("Lulaby playing")
 @app.route('/api/volume/down')

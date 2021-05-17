@@ -22,23 +22,27 @@
                 </div>
                 <div class="app_state">
                     <p class="volume_line"></p>
+                </div>                
+                <div class="app_row">
+                    <div class="app" id="lulabyON" onclick="golink(this,'/api/lulaby/start/2',updateVolume)"></div>
+                    <div class="app" id="lulabyTwo" onclick="golink(this,'/api/lulaby/start/1',updateVolume)"></div>
                 </div>
                 <div class="app_row">
-                    <div class="app" id="radioON" onclick="golink(this,'/api/radio/start')"></div>
+                    <div class="app" id="radioON" onclick="golink(this,'/api/radio/start/ns',updateVolume)"></div>
+                    <div class="app" id="radio357" onclick="golink(this,'/api/radio/start/357',updateVolume)"></div>
+                </div>
+                <div class="app_row">
                     <div class="app" id="soundOFF" onclick="golink(this,'/api/music/stop')"></div>
-                </div>
-                <div class="app_row">
-                    <div class="app" id="clockON" onclick="golink(this,'/api/clock/start')"></div>
-                    <div class="app" id="clockOFF" onclick="golink(this,'/api/clock/stop')"></div>
                 </div>
                 <div class="app_row">
                     <div class="app" id="volumeUP" onclick="golink(this,'/api/volume/up');updateVolume()"></div>
                     <div class="app" id="volumeDOWN" onclick="golink(this,'/api/volume/down');updateVolume()"></div>
                 </div>
                 <div class="app_row">
-                    <div class="app" id="lulabyON" onclick="golink(this,'/api/lulaby/start');updateVolume()"></div>
-                    <div class="app" id="soundOFF" onclick="golink(this,'/api/music/stop')"></div>
-                </div>
+                    <div class="app" id="clockON" onclick="golink(this,'/api/clock/start')"></div>
+                    <div class="app" id="clockOFF" onclick="golink(this,'/api/clock/stop')"></div>
+                </div>  
+               
             </div>
         </div>
         
