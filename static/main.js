@@ -3,7 +3,7 @@ window.onload = () => {
   
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker
-               .register('/static/sw.js');
+               .register('/sw.js');
     }
   }
 
@@ -12,7 +12,7 @@ var golink = function(divObj, apipath, afterFunction) {
     $.ajax(apipath).done(
         function(data) {
             if (afterFunction!==undefined) {
-                eval(afterFunction)
+                afterFunction.call();
             }
         }
     );

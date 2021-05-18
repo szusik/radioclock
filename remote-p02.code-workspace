@@ -2,6 +2,10 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"name": "SSH FS - pi0-2",
+			"uri": "ssh://pi0-2/"
 		}
 	],
 	"settings": {

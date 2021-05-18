@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, render_template
 from flasgger import Swagger
+from flask.helpers import make_response
 from modules.clock import runClock, clearScreen
 import os
 import string
@@ -37,7 +38,21 @@ def index():
 
 @app.route('/manifest.json')
 def manifest():
-  return render_template("manifest.json")
+  filename = "static/manifest.json"
+  with open(filename) as f:
+    content = f.readlines()
+  resp = make_response('\n'.join(content))
+  resp.headers.add_header("Content-type","application/json")
+  return resp
+
+@app.route('/sw.js')
+def sw():
+  filename = "static/sw.js"
+  with open(filename) as f:
+    content = f.readlines()
+  resp = make_response('\n'.join(content))
+  resp.headers.add_header("Content-type","application/javascript; charset=utf-8")
+  return resp
 
 @app.route('/api/hello')
 def hello():

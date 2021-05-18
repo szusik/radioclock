@@ -6,8 +6,10 @@ var filesToCache = [
   '/static/clock.png',
   '/static/clockoff.png',
   '/static/lulaby.png',
+  '/static/lulaby2.png',
   '/static/musicoff.png',
   '/static/radio.png',
+  '/static/radio357.png',
   '/static/volumedown.png',
   '/static/volumeup.png',
   '/static/jquery-3.5.1.min.js'
