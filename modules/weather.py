@@ -4,7 +4,6 @@ from requests.exceptions import HTTPError
 import base64
 import urllib.parse
 import urllib3
-import tm1637
 import time
 from time import sleep
 import Adafruit_GPIO.SPI as SPI
@@ -16,11 +15,11 @@ from PIL import ImageFont
 import os.path
 from os import path
 import math
-
+from modules.tm1637 import TM1637
 from datetime import datetime as dt
 
 #Temperature 4-digit LED
-tm = tm1637.TM1637(clk=27, dio=17)
+tm = TM1637(clk=27, dio=17)
 
 apikey = "c1b7c56b934a179d0eee7603d16ad0a8"
 lat = "52.42254135407858"
@@ -52,8 +51,6 @@ def getWeather():
             icon = Image.open(iconpath)
             displayIconAtPos(60,icon,False)
             response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&appid="+apikey+"&units=metric&exclude=daily,minutely,hourly")
-            
-
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
         except HTTPError as http_err:
@@ -84,6 +81,7 @@ def displayIcon(kind):
     if not path.exists(iconpath):
         iconpath = "/opt/radioclock/radioclock/static/icons/0.png"
     icon = Image.open(iconpath).convert('1')
+    dt.now().
     while True:
         for x in range(width-32,0,-10):        
             displayIconAtPos(x,icon)
@@ -156,5 +154,5 @@ def displayText(text):
         if minute % 5 == 0: #no more than 5 minutes - before next try
             break
 
-getWeather()
+#getWeather()
 #displayIcon("01")

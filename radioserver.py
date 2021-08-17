@@ -12,6 +12,7 @@ from modules.stoppableThread import StoppableThread,ExeContext
 import subprocess
 from modules.radio import playRadio, killMusic,playLulaby
 from modules.soundvolume import getSoundVolume, setSoundVolume
+from modules.weather import getWeather
 
 app = Flask(__name__)
 app.config['SWAGGER'] = {
@@ -92,10 +93,10 @@ def clockStart():
     brightness = request.args.get('brightness', '')
     if brightness == '': 
       brightness = 0.1
-    if ExeContext.displayThread is not None:
-      ExeContext.displayThread.stop()
-    ExeContext.displayThread = StoppableThread(target=runClock, args=(brightness,))
-    ExeContext.displayThread.start()
+    if ExeContext.clockThread is not None:
+      ExeContext.clockThread.stop()
+    ExeContext.clockThread = StoppableThread(target=runClock, args=(brightness,))
+    ExeContext.clockThread.start()
     return statusAnswer("Clock started")
 @app.route('/api/clock/stop')
 def clockStop():
@@ -111,8 +112,8 @@ def clockStop():
                 type: string
                 description: Status answer.
     """
-    if ExeContext.displayThread is not None:
-        ExeContext.displayThread.stop()
+    if ExeContext.clockThread is not None:
+        ExeContext.clockThread.stop()
     return statusAnswer("Clock stopped")
 @app.route('/api/radio/start/<radio_id>')
 def radioStart(radio_id):
@@ -222,8 +223,10 @@ def volumeLevel():
     """
     volume = getSoundVolume()
     return statusAnswer(volume)
-ExeContext.displayThread = StoppableThread(target=runClock, args=(0.1,))
-ExeContext.displayThread.start()
+ExeContext.clockThread = StoppableThread(target=runClock, args=(0.1,))
+ExeContext.clockThread.start()
+ExeContext.weatherThread = StoppableThread(target=getWeather)
+ExeContext.weatherThread.start()
 if __name__ == '__main__':
     app = create_app()
     app.run()    

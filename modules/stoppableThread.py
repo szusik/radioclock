@@ -15,5 +15,7 @@ class StoppableThread(threading.Thread):
         return self._stop_event.is_set()
 
 class ExeContext():
-    """Execution context to keep displayThread"""
-    displayThread = None
+    """Execution context to keep clockThread"""
+    clockThread = None
+    """Execution context to keep weatherThread"""
+    weatherThread = None
