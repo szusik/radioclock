@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, render_template
 from flasgger import Swagger
 from flask.helpers import make_response
-from modules.clock import runClock, clearScreen
+from modules.clock2 import runClock, clearScreen
 import os
 import string
 import logging
