@@ -81,17 +81,21 @@ def displayIcon(kind):
     if not path.exists(iconpath):
         iconpath = "/opt/radioclock/radioclock/static/icons/0.png"
     icon = Image.open(iconpath).convert('1')
-    dt.now().
+    inTimestamp = dt.now()
     while True:
         for x in range(width-32,0,-10):        
             displayIconAtPos(x,icon)
-        minute = dt.now().minute
-        if minute % 10 == 0:
+        now = dt.now()
+        lastCall = inTimestamp - now
+        minute = now.minute
+        if minute % 10 == 0 and lastCall.total_seconds > 60:
             break
         for x in range(0,width-32,10):        
             displayIconAtPos(x,icon)
-        minute = dt.now().minute
-        if minute % 10 == 0:
+        now = dt.now()
+        lastCall = inTimestamp - now
+        minute = now.minute
+        if minute % 10 == 0 and lastCall.total_seconds > 60:
             break
 
 def displayIconAtPos(x,icon,doSleep = True):
