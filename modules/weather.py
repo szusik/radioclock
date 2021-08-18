@@ -86,16 +86,18 @@ def displayIcon(kind):
         for x in range(width-32,0,-10):        
             displayIconAtPos(x,icon)
         now = dt.now()
-        lastCall = inTimestamp - now
+        lastCall = now - inTimestamp
         minute = now.minute
-        if minute % 10 == 0 and lastCall.total_seconds > 60:
+        #print("Total seconds "+str(lastCall.total_seconds()))
+        if minute % 10 == 0 and lastCall.total_seconds() > 60:
             break
         for x in range(0,width-32,10):        
             displayIconAtPos(x,icon)
         now = dt.now()
-        lastCall = inTimestamp - now
+        lastCall = now - inTimestamp
         minute = now.minute
-        if minute % 10 == 0 and lastCall.total_seconds > 60:
+        #print("Total seconds "+str(lastCall.total_seconds()))
+        if minute % 10 == 0 and lastCall.total_seconds() > 60:
             break
 
 def displayIconAtPos(x,icon,doSleep = True):
