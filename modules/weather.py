@@ -64,7 +64,7 @@ def getWeather():
         else:
             weather = json.loads(response.text)        
             temp = round(float(weather['current']['temp']))
-            if(temp<0):
+            if(temp<-9):
                 tm.show(str(temp)+"*")
             else:
                 tm.temperature(temp)
