@@ -1,37 +1,38 @@
 import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
-from time import sleep 
+from radio import playRadio, killMusic,playLulaby
+from soundvolume import getSoundVolume, setSoundVolume
 
 def button_callback(channel):
-        print("Button was pushed!")
+    bName='UNKN'
+    if (channel==SLEEP):
+        bName='SLEEP'
+    elif (channel==RESET):
+        bName='RESET'
+    elif (channel==REPEAT):
+        bName='REPEAT'
+    elif (channel==HR):
+        bName='HR'
+    elif (channel==MIN):
+        bName='MIN'
+    elif (channel==TIM_SET):
+        bName='TIM_SET'
+    elif (channel==ALM_SET):
+        bName='ALM_SET'
 
+    print("Button "+bName+" was pushed for channel: " +str(channel))
 GPIO.setwarnings(False) # Ignore warning for now
 GPIO.setmode(GPIO.BOARD) # Use physical pin numbering
-GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)   
-
-# Define a threaded callback function to run in another thread when events are detected  
-def my_callback(channel):  
-    if GPIO.input(22):     # if port 22 == 1  
-        print("Rising edge detected on 22")
-    else:                  # if port 22 != 1  
-        print("Falling edge detected on 22")  
-  
-# when a changing edge is detected on port 22, regardless of whatever   
-# else is happening in the program, the function my_callback will be run  
-GPIO.add_event_detect(22, GPIO.BOTH, callback=my_callback)  
-print("Program will finish after 30 seconds or if you press CTRL+C\n") 
-print("Make sure you have a button connected, pulled down through 10k resistor" )
-print("to GND and wired so that when pressed it connects"  )
-print("GPIO port 25 (pin 22) to GND (pin 6) through a ~1k resistor\n")  
-  
-print("Also put a 100 nF capacitor across your switch for hardware debouncing"  )
-print("This is necessary to see the effect we're looking for"  )
-
-  
-try:  
-    print("When pressed, you'll see: Rising Edge detected on 25")  
-    print("When released, you'll see: Falling Edge detected on 25" ) 
-    sleep(30)         # wait 30 seconds  
-    print("Time's up. Finished!"  )
-  
-finally:                   # this block will run no matter how the try block exits  
-    GPIO.cleanup()         # clean up after yourself  
+SLEEP=36
+RESET=33
+REPEAT=38
+HR=29
+MIN=31
+TIM_SET=15
+ALM_SET=40
+buttons=[SLEEP,RESET,REPEAT,HR,MIN,TIM_SET,ALM_SET]
+for but in buttons:
+    print("Setup for button "+str(but))
+    GPIO.setup(but, GPIO.IN, pull_up_down=GPIO.PUD_UP) # Set pin 10 to be an input pin and set initial value to be high
+    GPIO.add_event_detect(but,GPIO.FALLING,callback=button_callback, bouncetime=200) # Setup event on pin 10 rising edge
+message = input("Press enter to quit\n\n") # Run until someone presses enter
+GPIO.cleanup() # Clean up
