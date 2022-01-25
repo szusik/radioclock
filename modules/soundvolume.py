@@ -19,3 +19,17 @@ def setSoundVolume(volume):
     except subprocess.CalledProcessError as e:
         print("Unable to set sound volume")
     return rettext
+
+def volumeDown():
+    volume = getSoundVolume()
+    volume -= 10
+    if volume<0:
+      volume = 0
+    return setSoundVolume(volume)
+
+def volumeUp():
+    volume = getSoundVolume()
+    volume += 10
+    if volume>100:
+      volume = 100
+    return setSoundVolume(volume)

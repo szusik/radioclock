@@ -5,14 +5,16 @@ from modules.clock2 import runClock, clearScreen
 import os
 import string
 import logging
+import logging.config
 import threading
 import time
 from modules.statusanswer import statusAnswer
 from modules.stoppableThread import StoppableThread,ExeContext
 import subprocess
 from modules.radio import playRadio, killMusic,playLulaby
-from modules.soundvolume import getSoundVolume, setSoundVolume
+from modules.soundvolume import getSoundVolume, volumeUp, volumeDown
 from modules.weather import getWeather
+from modules.buttons import setupButtons
 
 app = Flask(__name__)
 app.config['SWAGGER'] = {
@@ -28,7 +30,8 @@ app.config['SWAGGER'] = {
         }
     ]
 }
-
+#Setup logger
+logging.basicConfig(filename='/var/log/radioclock.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 # Create swagger definition
 swagger = Swagger(app) 
 
@@ -181,11 +184,7 @@ def volumeDown():
                 type: string
                 description: Status answer.
     """
-    volume = getSoundVolume()
-    volume -= 10
-    if volume<0:
-      volume = 0
-    status = setSoundVolume(volume)
+    status = volumeDown()
     return statusAnswer(status)
 @app.route('/api/volume/up')
 def volumeUp():
@@ -201,11 +200,7 @@ def volumeUp():
                 type: string
                 description: Status answer.
     """
-    volume = getSoundVolume()
-    volume +=10
-    if volume>100:
-      volume = 100
-    status = setSoundVolume(volume)
+    status = volumeUp()
     return statusAnswer(status)
 @app.route('/api/volume/level')
 def volumeLevel():
@@ -223,10 +218,17 @@ def volumeLevel():
     """
     volume = getSoundVolume()
     return statusAnswer(volume)
+logging.info("Starting clock")
 ExeContext.clockThread = StoppableThread(target=runClock, args=(0.1,))
 ExeContext.clockThread.start()
+logging.info("Starting weather")
 ExeContext.weatherThread = StoppableThread(target=getWeather)
 ExeContext.weatherThread.start()
+logging.info("Starting buttons")
+ExeContext.buttonsThread = StoppableThread(target=setupButtons)
+ExeContext.buttonsThread.start()
+#setupButtons()
+logging.info("All done")
 if __name__ == '__main__':
     app = create_app()
     app.run()    

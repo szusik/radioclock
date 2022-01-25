@@ -17,6 +17,7 @@ from os import path
 import math
 from modules.tm1637 import TM1637
 from datetime import datetime as dt
+import logging
 
 #Temperature 4-digit LED
 tm = TM1637(clk=27, dio=17)
@@ -50,17 +51,19 @@ def getWeather():
             iconpath = "/opt/radioclock/radioclock/static/icons/0.png"
             icon = Image.open(iconpath)
             displayIconAtPos(60,icon,False)
-            response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&appid="+apikey+"&units=metric&exclude=daily,minutely,hourly")
+            response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&appid="+apikey+"&units=metric&exclude=daily,minutely,hourly", timeout=10)
             # If the response was successful, no Exception will be raised
             response.raise_for_status()
         except HTTPError as http_err:
             tm.show("UPS1")
             displayText(str(http_err))
             print("HTTP error occurred:",str(http_err))  # Python 3.6
+            logging.error("HTTP error occurred:",str(http_err))
         except Exception as err:
             tm.show("UPS2")
             displayText(str(err))
             print("Other error occurred:",str(err))  # Python 3.6
+            logging.error("HTTP error occurred:",str(http_err))
         else:
             weather = json.loads(response.text)        
             temp = round(float(weather['current']['temp']))
