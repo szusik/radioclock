@@ -1,4 +1,4 @@
-from modules.stoppableThread import StoppableThread,ExeContext
+from modules.stoppableThread import StoppableThread
 import subprocess
 
 def playRadio(id):

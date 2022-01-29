@@ -9,11 +9,11 @@ import logging.config
 import threading
 import time
 from modules.statusanswer import statusAnswer
-from modules.stoppableThread import StoppableThread,ExeContext
+from modules.stoppableThread import StoppableThread
 import subprocess
 from modules.radio import playRadio, killMusic,playLulaby
 from modules.soundvolume import getSoundVolume, volumeUp, volumeDown
-from modules.weather import getWeather
+from modules.weather import getWeather,displayClear
 from modules.buttons import setupButtons
 
 app = Flask(__name__)
@@ -34,7 +34,10 @@ app.config['SWAGGER'] = {
 logging.basicConfig(filename='/var/log/radioclock.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 # Create swagger definition
 swagger = Swagger(app) 
-
+#setup background thread
+clockThread = StoppableThread(target=runClock, args=(0.1,))
+weatherThread = StoppableThread(target=getWeather)
+buttonsThread = StoppableThread(target=setupButtons)
 @app.route('/')
 @app.route('/index.html')
 def index():
@@ -96,10 +99,16 @@ def clockStart():
     brightness = request.args.get('brightness', '')
     if brightness == '': 
       brightness = 0.1
-    if ExeContext.clockThread is not None:
-      ExeContext.clockThread.stop()
-    ExeContext.clockThread = StoppableThread(target=runClock, args=(brightness,))
-    ExeContext.clockThread.start()
+    logging.info("Starting clock with brightness",str(brightness))
+    if clockThread is not None:
+      clockThread.stop()
+    clockThread = StoppableThread(target=runClock, args=(brightness,))
+    clockThread.start()
+    logging.info("Starting weather")
+    if weatherThread is not None:
+      weatherThread.stop()
+    weatherThread = StoppableThread(target=getWeather)
+    weatherThread.start()
     return statusAnswer("Clock started")
 @app.route('/api/clock/stop')
 def clockStop():
@@ -115,8 +124,14 @@ def clockStop():
                 type: string
                 description: Status answer.
     """
-    if ExeContext.clockThread is not None:
-        ExeContext.clockThread.stop()
+    logging.info("Clear and stop clock")
+    if clockThread is not None:
+      clockThread.stop()
+    clearScreen()
+    logging.info("Clear and stop weather display")
+    if weatherThread is not None:
+      weatherThread.stop()
+    displayClear()
     return statusAnswer("Clock stopped")
 @app.route('/api/radio/start/<radio_id>')
 def radioStart(radio_id):
@@ -219,14 +234,13 @@ def volumeLevel():
     volume = getSoundVolume()
     return statusAnswer(volume)
 logging.info("Starting clock")
-ExeContext.clockThread = StoppableThread(target=runClock, args=(0.1,))
-ExeContext.clockThread.start()
+
+clockThread.start()
 logging.info("Starting weather")
-ExeContext.weatherThread = StoppableThread(target=getWeather)
-ExeContext.weatherThread.start()
+
+weatherThread.start()
 logging.info("Starting buttons")
-ExeContext.buttonsThread = StoppableThread(target=setupButtons)
-ExeContext.buttonsThread.start()
+buttonsThread.start()
 #setupButtons()
 logging.info("All done")
 if __name__ == '__main__':

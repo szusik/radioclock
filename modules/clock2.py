@@ -30,4 +30,6 @@ def runClock(BRIGHTNESS):
     clock.run()
 
 def clearScreen():
-    scrollphathd.clear()
+    tm.write([0, 0, 0, 0])
+    tm.brightness(0)
+

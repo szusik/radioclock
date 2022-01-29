@@ -40,30 +40,34 @@ scrollspeed = 1
 width = disp.width
 height = disp.height
 
-# Clear display.
-disp.clear()
-disp.display()
-tm.write([0, 0, 0, 0])
-tm.brightness(0)
+def displayClear():
+    # Clear display.
+    disp.clear()
+    disp.display()
+    tm.write([0, 0, 0, 0])
+    tm.brightness(0)
+
+displayClear()
+
 def getWeather():
     while True:
         try:
+            logging.info("Preparing request for weather")
+            #display question mark
             iconpath = "/opt/radioclock/radioclock/static/icons/0.png"
             icon = Image.open(iconpath)
             displayIconAtPos(60,icon,False)
+            #make a request for weather
             response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&appid="+apikey+"&units=metric&exclude=daily,minutely,hourly", timeout=10)
             # If the response was successful, no Exception will be raised
+            logging.info("Request for weather done")
             response.raise_for_status()
-        except HTTPError as http_err:
-            tm.show("UPS1")
-            displayText(str(http_err))
-            print("HTTP error occurred:",str(http_err))  # Python 3.6
-            logging.error("HTTP error occurred:",str(http_err))
-        except Exception as err:
+        except:
+            err = str(sys.exc_info())
+            logging.error("Other error occurred:",str(err))
             tm.show("UPS2")
             displayText(str(err))
-            print("Other error occurred:",str(err))  # Python 3.6
-            logging.error("HTTP error occurred:",str(http_err))
+            print("Other error occurred:",str(err))  # Python 3.6           
         else:
             weather = json.loads(response.text)        
             temp = round(float(weather['current']['temp']))
@@ -71,9 +75,6 @@ def getWeather():
                 tm.show(str(temp)+"*")
             else:
                 tm.temperature(temp)
-            #print(weather)
-            #print(temp)
-            #print(weather['current']['weather'][0]['icon'])
             displayIcon(weather['current']['weather'][0]['icon'])
 
 def displayIcon(kind):
