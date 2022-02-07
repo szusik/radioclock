@@ -18,6 +18,8 @@ import math
 from modules.tm1637 import TM1637
 from datetime import datetime as dt
 import logging
+import threading
+import sys
 
 #Temperature 4-digit LED
 tm = TM1637(clk=27, dio=17)
@@ -53,29 +55,42 @@ def getWeather():
     while True:
         try:
             logging.info("Preparing request for weather")
+            if threading.current_thread().stopped():
+                logging.info("Weather thread marked as stopped")
+                break            
             #display question mark
             iconpath = "/opt/radioclock/radioclock/static/icons/0.png"
             icon = Image.open(iconpath)
             displayIconAtPos(60,icon,False)
+            sleep(1)
+            displayText("1...",False)
+            sleep(1)
             #make a request for weather
-            response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&appid="+apikey+"&units=metric&exclude=daily,minutely,hourly", timeout=10)
+            response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&appid="+apikey+"&units=metric&exclude=daily,minutely,hourly")
             # If the response was successful, no Exception will be raised
+            displayText("2...",False)
+            sleep(1)
             logging.info("Request for weather done")
             response.raise_for_status()
-        except:
-            err = str(sys.exc_info())
-            logging.error("Other error occurred:",str(err))
-            tm.show("UPS2")
-            displayText(str(err))
-            print("Other error occurred:",str(err))  # Python 3.6           
-        else:
+            displayText("3...",False)
+            sleep(1)
             weather = json.loads(response.text)        
             temp = round(float(weather['current']['temp']))
             if(temp<-9):
                 tm.show(str(temp)+"*")
             else:
                 tm.temperature(temp)
+            displayText("4...",False)
             displayIcon(weather['current']['weather'][0]['icon'])
+        except:
+            logging.error("Other error")
+            err = str(sys.exc_info())
+            logging.error("Error known as:",str(err))
+            tm.show("UPS")
+            sleep(1)
+            displayText(str(err))
+            print("Other error occurred:",str(err))  # Python 3.6           
+            
 
 def displayIcon(kind):
     # Create image buffer.
@@ -103,6 +118,9 @@ def displayIcon(kind):
         #print("Total seconds "+str(lastCall.total_seconds()))
         if minute % 10 == 0 and lastCall.total_seconds() > 60:
             break
+        if threading.current_thread().stopped():
+            logging.info("Weather thread marked as stopped")
+            break
 
 def displayIconAtPos(x,icon,doSleep = True):
     image = Image.new('1', (width, height))
@@ -117,7 +135,7 @@ def displayIconAtPos(x,icon,doSleep = True):
     if doSleep: 
         sleep(scrollspeed)
 
-def displayText(text):
+def displayText(text,doScroll=True):
     # Create image buffer.
     # Make sure to create image with mode '1' for 1-bit color.
     image = Image.new('1', (width, height))
@@ -163,6 +181,8 @@ def displayText(text):
         minute = dt.now().minute
         if minute % 5 == 0: #no more than 5 minutes - before next try
             break
+        if doScroll != True:
+            break 
 
 #getWeather()
 #displayIcon("01")

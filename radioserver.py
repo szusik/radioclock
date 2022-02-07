@@ -99,7 +99,7 @@ def clockStart():
     brightness = request.args.get('brightness', '')
     if brightness == '': 
       brightness = 0.1
-    logging.info("Starting clock with brightness",str(brightness))
+    logging.info("Starting clock")
     if clockThread is not None:
       clockThread.stop()
     clockThread = StoppableThread(target=runClock, args=(brightness,))

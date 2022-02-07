@@ -2,6 +2,7 @@
 
 import time
 import threading
+import logging
 
 from time import sleep, localtime
 
@@ -24,6 +25,9 @@ class Clock:
             self.show_colon = not self.show_colon
             tm.numbers(t.tm_hour, t.tm_min, self.show_colon)
             sleep(1)
+            if threading.current_thread().stopped():
+                logging.info("Clock thread marked as stopped")
+                break
 
 def runClock(BRIGHTNESS):
     clock = Clock(tm)

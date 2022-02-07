@@ -10,6 +10,7 @@ class StoppableThread(threading.Thread):
         self._stop_event = threading.Event()
 
     def stop(self):
+        logging.info("Thread "+self.name+" marked to stop")
         self._stop_event.set()
 
     def stopped(self):

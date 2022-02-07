@@ -2,6 +2,9 @@ import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
 from modules.radio import playRadio, killMusic,playLulaby
 from modules.soundvolume import volumeUp, volumeDown
 import logging
+import sys
+import threading
+
 GPIO.setwarnings(False) # Ignore warning for now
 GPIO.setmode(GPIO.BCM) # Use BCM pin numbering
 SLEEP=16
@@ -12,31 +15,43 @@ MIN=6
 TIM_SET=22
 ALM_SET=21
 def button_callback(channel):
-    bName='UNKN'
-    if (channel==SLEEP):
-        bName='SLEEP'
-        playRadio('ns')
-    elif (channel==RESET):
-        bName='RESET'
-        playRadio('357')
-    elif (channel==REPEAT):
-        bName='REPEAT'
-        killMusic()
-    elif (channel==HR):
-        bName='HR'
-        playLulaby('1')
-    elif (channel==MIN):
-        bName='MIN'
-        playLulaby('2')
-    elif (channel==TIM_SET):
-        bName='TIM_SET'
-        volumeDown()
-    elif (channel==ALM_SET):
-        bName='ALM_SET'
-        volumeUp()
+    try:
+        bName='UNKN'
+        if (channel==SLEEP):
+            bName='SLEEP'
+            killMusic()
+            action = threading.Thread(target=playRadio, args=('ns',))
+            action.start()
+        elif (channel==RESET):
+            bName='RESET'
+            action = threading.Thread(target=playRadio, args=('357',))
+            action.start()
+        elif (channel==REPEAT):
+            bName='REPEAT'
+            killMusic()
+        elif (channel==HR):
+            bName='HR'
+            killMusic()
+            action = threading.Thread(target=playLulaby, args=('1',))
+            action.start()
+        elif (channel==MIN):
+            bName='MIN'
+            killMusic()
+            action = threading.Thread(target=playLulaby, args=('2',))
+            action.start()
+        elif (channel==TIM_SET):
+            bName='TIM_SET'
+            volumeDown()
+        elif (channel==ALM_SET):
+            bName='ALM_SET'
+            volumeUp()
 
-    logging.info("Button "+bName+" was pushed for channel: " +str(channel))
-    #print("Button "+bName+" was pushed for channel: " +str(channel))
+        logging.info("Button "+bName+" was pushed for channel: " +str(channel))
+        #print("Button "+bName+" was pushed for channel: " +str(channel))
+    except:
+        logging.error("Other error")
+        err = str(sys.exc_info())
+        logging.error("Error known as:",str(err))
 
 def setupButtons():
     logging.debug("Starting init for buttons")
