@@ -15,6 +15,7 @@ from modules.radio import playRadio, killMusic,playLulaby
 from modules.soundvolume import getSoundVolume, volumeUp, volumeDown
 from modules.weather import getWeather,displayClear
 from modules.buttons import setupButtons
+import sys
 
 app = Flask(__name__)
 app.config['SWAGGER'] = {
@@ -96,20 +97,26 @@ def clockStart():
                 type: string
                 description: Status answer.
     """
-    brightness = request.args.get('brightness', '')
-    if brightness == '': 
-      brightness = 0.1
-    logging.info("Starting clock")
-    if clockThread is not None:
-      clockThread.stop()
-    clockThread = StoppableThread(target=runClock, args=(brightness,))
-    clockThread.start()
-    logging.info("Starting weather")
-    if weatherThread is not None:
-      weatherThread.stop()
-    weatherThread = StoppableThread(target=getWeather)
-    weatherThread.start()
-    return statusAnswer("Clock started")
+    global clockThread
+    global weatherThread
+    try:
+      brightness = request.args.get('brightness', '')
+      if brightness == '': 
+        brightness = 0.1
+      logging.info("Starting clock")
+      if clockThread is not None:
+        clockThread.stop()
+      clockThread = StoppableThread(target=runClock, args=(brightness,))
+      clockThread.start()
+      logging.info("Starting weather")
+      if weatherThread is not None:
+        weatherThread.stop()
+      weatherThread = StoppableThread(target=getWeather)
+      weatherThread.start()
+      return statusAnswer("Clock started")
+    except:
+      err = str(sys.exc_info())
+      logging.error("Got clock start error known as:",str(err))
 @app.route('/api/clock/stop')
 def clockStop():
     """Stop displaying clock
@@ -124,15 +131,22 @@ def clockStop():
                 type: string
                 description: Status answer.
     """
-    logging.info("Clear and stop clock")
-    if clockThread is not None:
-      clockThread.stop()
-    clearScreen()
-    logging.info("Clear and stop weather display")
-    if weatherThread is not None:
-      weatherThread.stop()
-    displayClear()
-    return statusAnswer("Clock stopped")
+    global clockThread
+    global weatherThread
+    try:
+      logging.info("Clear and stop clock")
+      if clockThread is not None:
+        clockThread.stop()
+      clearScreen()
+      logging.info("Clear and stop weather display")
+      if weatherThread is not None:
+        weatherThread.stop()
+      displayClear()
+      return statusAnswer("Clock stopped")
+    except:
+      err = str(sys.exc_info())
+      logging.error("Got error known as:",str(err))
+      return statusAnswer("Clock stopped error")
 @app.route('/api/radio/start/<radio_id>')
 def radioStart(radio_id):
     """Start playing radio
@@ -147,10 +161,15 @@ def radioStart(radio_id):
                 type: string
                 description: Status answer.
     """
-    killMusic()
-    radio = threading.Thread(target=playRadio, args=(radio_id,))
-    radio.start()
-    return statusAnswer("Radio started")
+    try:
+      killMusic()
+      radio = threading.Thread(target=playRadio, args=(radio_id,))
+      radio.start()
+      return statusAnswer("Radio started")
+    except:
+      err = str(sys.exc_info())
+      logging.error("Got error known as:",str(err))
+      return statusAnswer("Radio start error")
 @app.route('/api/music/stop')
 def radioStop():
     """Stop playing music
@@ -165,8 +184,13 @@ def radioStop():
                 type: string
                 description: Status answer.
     """
-    killMusic()
-    return statusAnswer("Music stopped")
+    try:
+      killMusic()
+      return statusAnswer("Music stopped")
+    except:
+      err = str(sys.exc_info())
+      logging.error("Got error known as:",str(err))
+      return statusAnswer("Kill music error")
 @app.route('/api/lulaby/start/<lul_id>')
 def lulabyStart(lul_id):
     """Start playing lulaby
@@ -181,12 +205,17 @@ def lulabyStart(lul_id):
                 type: string
                 description: Status answer.
     """
-    killMusic()
-    radio = threading.Thread(target=playLulaby, args=(lul_id,))
-    radio.start()
-    return statusAnswer("Lulaby playing")
+    try:
+      killMusic()
+      radio = threading.Thread(target=playLulaby, args=(lul_id,))
+      radio.start()
+      return statusAnswer("Lulaby playing")
+    except:
+      err = str(sys.exc_info())
+      logging.error("Got error known as:",str(err))
+      return statusAnswer("Lulaby error")
 @app.route('/api/volume/down')
-def volumeDown():
+def volDown():
     """Volume down by 10%
     ---
     responses:
@@ -199,10 +228,14 @@ def volumeDown():
                 type: string
                 description: Status answer.
     """
-    status = volumeDown()
-    return statusAnswer(status)
+    try:
+      status = volumeDown()
+      return statusAnswer(status)
+    except:
+      err = str(sys.exc_info())
+      logging.error("Got volDown error known as:",str(err))
 @app.route('/api/volume/up')
-def volumeUp():
+def volUp():
     """Volume UP by 10%
     ---
     responses:
@@ -215,8 +248,13 @@ def volumeUp():
                 type: string
                 description: Status answer.
     """
-    status = volumeUp()
-    return statusAnswer(status)
+    try:
+      status = volumeUp()
+      return statusAnswer(status)
+    except:
+      err = str(sys.exc_info())
+      logging.error("Got error known as:",str(err))
+      return statusAnswer("Vol up error")
 @app.route('/api/volume/level')
 def volumeLevel():
     """Volume level check
@@ -231,8 +269,13 @@ def volumeLevel():
                 type: string
                 description: Status answer.
     """
-    volume = getSoundVolume()
-    return statusAnswer(volume)
+    try:
+      volume = getSoundVolume()
+      return statusAnswer(volume)
+    except:
+      err = str(sys.exc_info())
+      logging.error("Got error known as:",str(err))
+      return statusAnswer("Get sound volume error")
 logging.info("Starting clock")
 
 clockThread.start()
