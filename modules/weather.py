@@ -8,6 +8,7 @@ import time
 from time import sleep
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
+from modules.stoppableThread import StoppableThread
 
 from PIL import Image
 from PIL import ImageDraw
@@ -20,6 +21,7 @@ from datetime import datetime as dt
 import logging
 import threading
 import sys
+import schedule
 
 #Temperature 4-digit LED
 tm = TM1637(clk=27, dio=17)
@@ -41,8 +43,11 @@ scrollspeed = 1
 # Get display width and height.
 width = disp.width
 height = disp.height
+workerThread = None
 
 def displayClear():
+    global tm
+    global disp
     # Clear display.
     disp.clear()
     disp.display()
@@ -50,8 +55,46 @@ def displayClear():
     tm.brightness(0)
 
 displayClear()
+def getWeatherAsync():
+    global workerThread
+    try:
+        logging.info("Working on weather")
+        if workerThread is not None:
+            workerThread.stop()
+        workerThread = StoppableThread(target=getWeather)
+        workerThread.start()
+    except:
+        logging.error("Other error - Async")
+        err = str(sys.exc_info())
+        logging.error("Error known as "+err)
+        tm.show("UPS")
+        sleep(1)
+        displayText(str(err))
+        print("Other error occurred:",str(err))
+
+def getWeatherSched():
+    try:
+        logging.info("Calling scheduler for weather")
+        getWeatherAsync()
+        schedule.every(1).minutes.do(getWeatherAsync)
+        while True:
+            schedule.run_pending()
+            sleep(1)
+        logging.info("Calling scheduler for weather done")
+    except:
+        logging.error("Other error Sched")
+        err = str(sys.exc_info())
+        logging.error("Error known as "+err)
+        tm.show("UPS")
+        sleep(1)
+        displayText(str(err))
+        print("Other error occurred:",str(err))
 
 def getWeather():
+    global apikey
+    global lat
+    global lon
+    global tm
     while True:
         try:
             logging.info("Preparing request for weather")
@@ -83,9 +126,9 @@ def getWeather():
             displayText("4...",False)
             displayIcon(weather['current']['weather'][0]['icon'])
         except:
-            logging.error("Other error")
+            logging.error("Other error - main weather")
             err = str(sys.exc_info())
-            logging.error("Error known as:",str(err))
+            logging.error("Error known as "+err)
             tm.show("UPS")
             sleep(1)
             displayText(str(err))
@@ -123,6 +166,7 @@ def displayIcon(kind):
             break
 
 def displayIconAtPos(x,icon,doSleep = True):
+    global disp
     image = Image.new('1', (width, height))
     # Create drawing object.
     draw = ImageDraw.Draw(image)
@@ -136,6 +180,7 @@ def displayIconAtPos(x,icon,doSleep = True):
         sleep(scrollspeed)
 
 def displayText(text,doScroll=True):
+    global disp
     # Create image buffer.
     # Make sure to create image with mode '1' for 1-bit color.
     image = Image.new('1', (width, height))

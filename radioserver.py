@@ -13,9 +13,10 @@ from modules.stoppableThread import StoppableThread
 import subprocess
 from modules.radio import playRadio, killMusic,playLulaby
 from modules.soundvolume import getSoundVolume, volumeUp, volumeDown
-from modules.weather import getWeather,displayClear
+from modules.weather import getWeather,displayClear,getWeatherSched
 from modules.buttons import setupButtons
 import sys
+import schedule
 
 app = Flask(__name__)
 app.config['SWAGGER'] = {
@@ -37,7 +38,7 @@ logging.basicConfig(filename='/var/log/radioclock.log',format='%(asctime)s - %(n
 swagger = Swagger(app) 
 #setup background thread
 clockThread = StoppableThread(target=runClock, args=(0.1,))
-weatherThread = StoppableThread(target=getWeather)
+weatherThread = StoppableThread(target=getWeatherSched)
 buttonsThread = StoppableThread(target=setupButtons)
 @app.route('/')
 @app.route('/index.html')
