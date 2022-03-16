@@ -76,7 +76,7 @@ def getWeatherSched():
     try:
         logging.info("Calling scheduler for weather")
         getWeatherAsync()
-        schedule.every(1).minutes.do(getWeatherAsync)
+        schedule.every(10).minutes.do(getWeatherAsync)
         while True:
             schedule.run_pending()
             sleep(1)
@@ -195,6 +195,10 @@ def displayText(text,doScroll=True):
     startpos = width
     pos = startpos
     while True:
+        # check if we are allowed
+        if threading.current_thread().stopped():
+            logging.info("Weather thread marked as stopped")
+            break
         # Clear image buffer by drawing a black filled box.
         draw.rectangle((0,0,width,height), outline=0, fill=0)
         # Enumerate characters and draw them offset vertically based on a sine wave.
