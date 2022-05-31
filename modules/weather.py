@@ -166,18 +166,21 @@ def displayIcon(kind):
             break
 
 def displayIconAtPos(x,icon,doSleep = True):
-    global disp
-    image = Image.new('1', (width, height))
-    # Create drawing object.
-    draw = ImageDraw.Draw(image)
-    draw.rectangle((0,0,width,height), outline=0, fill=0)        
-    image.paste(icon, [x,0])
-    # Display image.
-    disp.image(image)
-    disp.display()
-    #print("Display at "+str(x))
-    if doSleep: 
-        sleep(scrollspeed)
+    if threading.current_thread().stopped():
+        logging.info("Weather thread marked as stopped")
+    else:
+        global disp
+        image = Image.new('1', (width, height))
+        # Create drawing object.
+        draw = ImageDraw.Draw(image)
+        draw.rectangle((0,0,width,height), outline=0, fill=0)        
+        image.paste(icon, [x,0])
+        # Display image.
+        disp.image(image)
+        disp.display()
+        #print("Display at "+str(x))
+        if doSleep: 
+            sleep(scrollspeed)
 
 def displayText(text,doScroll=True):
     global disp
