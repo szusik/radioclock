@@ -281,11 +281,10 @@ logging.info("Starting clock")
 
 clockThread.start()
 logging.info("Starting weather")
-
 weatherThread.start()
 logging.info("Starting buttons")
 buttonsThread.start()
-#setupButtons()
+
 logging.info("All done")
 if __name__ == '__main__':
     app = create_app()

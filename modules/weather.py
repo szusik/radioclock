@@ -24,7 +24,8 @@ import sys
 import schedule
 
 #Temperature 4-digit LED
-tm = TM1637(clk=27, dio=17)
+tmTemp = TM1637(clk=27, dio=17)
+tmTemp.brightness(0)
 
 apikey = "c1b7c56b934a179d0eee7603d16ad0a8"
 lat = "52.42254135407858"
@@ -37,26 +38,27 @@ DC = 23
 SPI_PORT = 0
 SPI_DEVICE = 0
 # 128x32 display with hardware I2C:
-disp = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
-disp.begin()
+dOled = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
+dOled.begin()
 scrollspeed = 1
 # Get display width and height.
-width = disp.width
-height = disp.height
+width = dOled.width
+height = dOled.height
 workerThread = None
 
 def displayClear():
-    global tm
-    global disp
+    global tmTemp
+    global dOled
     # Clear display.
-    disp.clear()
-    disp.display()
-    tm.write([0, 0, 0, 0])
-    tm.brightness(0)
+    dOled.clear()
+    dOled.display()
+    tmTemp.write([0, 0, 0, 0])
+    tmTemp.brightness(0)
 
-displayClear()
+#displayClear()
 def getWeatherAsync():
     global workerThread
+    global tmTemp
     try:
         logging.info("Working on weather")
         if workerThread is not None:
@@ -67,12 +69,13 @@ def getWeatherAsync():
         logging.error("Other error - Async")
         err = str(sys.exc_info())
         logging.error("Error known as "+err)
-        tm.show("UPS")
+        tmTemp.show("UPS")
         sleep(1)
         displayText(str(err))
         print("Other error occurred:",str(err))
 
 def getWeatherSched():
+    global tmTemp
     try:
         logging.info("Calling scheduler for weather")
         getWeatherAsync()
@@ -85,7 +88,7 @@ def getWeatherSched():
         logging.error("Other error Sched")
         err = str(sys.exc_info())
         logging.error("Error known as "+err)
-        tm.show("UPS")
+        tmTemp.show("UPS")
         sleep(1)
         displayText(str(err))
         print("Other error occurred:",str(err))
@@ -94,42 +97,46 @@ def getWeather():
     global apikey
     global lat
     global lon
-    global tm
-    while True:
+    global tmTemp
+    while not threading.current_thread().stopped():
         try:
             logging.info("Preparing request for weather")
             if threading.current_thread().stopped():
-                logging.info("Weather thread marked as stopped")
+                logging.info("Weather thread marked as stopped 1")
                 break            
             #display question mark
             iconpath = "/opt/radioclock/radioclock/static/icons/0.png"
             icon = Image.open(iconpath)
             displayIconAtPos(60,icon,False)
             sleep(1)
-            displayText("1...",False)
+            displayText("1...", False)
+            tmTemp.show("1***")
             sleep(1)
             #make a request for weather
             response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&appid="+apikey+"&units=metric&exclude=daily,minutely,hourly")
             # If the response was successful, no Exception will be raised
             displayText("2...",False)
+            tmTemp.show("*1**")
             sleep(1)
             logging.info("Request for weather done")
             response.raise_for_status()
             displayText("3...",False)
+            tmTemp.show("**1*")
             sleep(1)
-            weather = json.loads(response.text)        
+            weather = json.loads(response.text)
             temp = round(float(weather['current']['temp']))
+            tmTemp.show("***1")
             if(temp<-9):
-                tm.show(str(temp)+"*")
+                tmTemp.show(str(temp)+"*")
             else:
-                tm.temperature(temp)
+                tmTemp.temperature(temp)
             displayText("4...",False)
             displayIcon(weather['current']['weather'][0]['icon'])
         except:
+            tmTemp.show("UPS")
             logging.error("Other error - main weather")
             err = str(sys.exc_info())
-            logging.error("Error known as "+err)
-            tm.show("UPS")
+            logging.error("Error known as "+err)            
             sleep(1)
             displayText(str(err))
             print("Other error occurred:",str(err))  # Python 3.6           
@@ -144,7 +151,7 @@ def displayIcon(kind):
         iconpath = "/opt/radioclock/radioclock/static/icons/0.png"
     icon = Image.open(iconpath).convert('1')
     inTimestamp = dt.now()
-    while True:
+    while not threading.current_thread().stopped():
         for x in range(width-32,0,-10):        
             displayIconAtPos(x,icon)
         now = dt.now()
@@ -162,28 +169,28 @@ def displayIcon(kind):
         if minute % 10 == 0 and lastCall.total_seconds() > 60:
             break
         if threading.current_thread().stopped():
-            logging.info("Weather thread marked as stopped")
+            logging.info("Weather thread marked as stopped 2")
             break
 
 def displayIconAtPos(x,icon,doSleep = True):
     if threading.current_thread().stopped():
-        logging.info("Weather thread marked as stopped")
+        logging.info("Weather thread marked as stopped 3")
     else:
-        global disp
+        global dOled
         image = Image.new('1', (width, height))
         # Create drawing object.
         draw = ImageDraw.Draw(image)
         draw.rectangle((0,0,width,height), outline=0, fill=0)        
         image.paste(icon, [x,0])
-        # Display image.
-        disp.image(image)
-        disp.display()
-        #print("Display at "+str(x))
+        # display image.
+        dOled.image(image)
+        dOled.display()
+        #print("display at "+str(x))
         if doSleep: 
             sleep(scrollspeed)
 
 def displayText(text,doScroll=True):
-    global disp
+    global dOled
     # Create image buffer.
     # Make sure to create image with mode '1' for 1-bit color.
     image = Image.new('1', (width, height))
@@ -200,7 +207,7 @@ def displayText(text,doScroll=True):
     while True:
         # check if we are allowed
         if threading.current_thread().stopped():
-            logging.info("Weather thread marked as stopped")
+            logging.info("Weather thread marked as stopped 4")
             break
         # Clear image buffer by drawing a black filled box.
         draw.rectangle((0,0,width,height), outline=0, fill=0)
@@ -221,19 +228,19 @@ def displayText(text,doScroll=True):
             char_width, char_height = draw.textsize(c, font=font)
             x += char_width
         # Draw the image buffer.
-        disp.image(image)
-        disp.display()
+        dOled.image(image)
+        dOled.display()
         # Move position for next frame.
         pos += velocity
         # Start over if text has scrolled completely off left side of screen.
         if pos < -maxwidth:
             pos = startpos
         # Pause briefly before drawing next frame.
-        sleep(0.05)
+        sleep(0.03)
         minute = dt.now().minute
         if minute % 5 == 0: #no more than 5 minutes - before next try
             break
-        if doScroll != True:
+        if not doScroll:
             break 
 
 #getWeather()
