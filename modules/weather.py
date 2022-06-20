@@ -49,11 +49,16 @@ workerThread = None
 def displayClear():
     global tmTemp
     global dOled
+    global workerThread
+    if workerThread is not None:
+        logging.info("Requested stop of worker thread 1")
+        workerThread.stop()
+        workerThread.join()
     # Clear display.
     dOled.clear()
     dOled.display()
     tmTemp.write([0, 0, 0, 0])
-    tmTemp.brightness(0)
+    tmTemp.brightness(0)    
 
 #displayClear()
 def getWeatherAsync():
@@ -62,7 +67,9 @@ def getWeatherAsync():
     try:
         logging.info("Working on weather")
         if workerThread is not None:
+            logging.info("Requested stop of worker thread 1")
             workerThread.stop()
+            workerThread.join()
         workerThread = StoppableThread(target=getWeather)
         workerThread.start()
     except:
@@ -109,18 +116,15 @@ def getWeather():
             icon = Image.open(iconpath)
             displayIconAtPos(60,icon,False)
             sleep(1)
-            displayText("1...", False)
             tmTemp.show("1***")
             sleep(1)
             #make a request for weather
             response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&appid="+apikey+"&units=metric&exclude=daily,minutely,hourly")
             # If the response was successful, no Exception will be raised
-            displayText("2...",False)
             tmTemp.show("*1**")
             sleep(1)
             logging.info("Request for weather done")
             response.raise_for_status()
-            displayText("3...",False)
             tmTemp.show("**1*")
             sleep(1)
             weather = json.loads(response.text)
@@ -130,7 +134,6 @@ def getWeather():
                 tmTemp.show(str(temp)+"*")
             else:
                 tmTemp.temperature(temp)
-            displayText("4...",False)
             displayIcon(weather['current']['weather'][0]['icon'])
         except:
             tmTemp.show("UPS")

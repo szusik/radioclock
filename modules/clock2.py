@@ -3,34 +3,48 @@
 import time
 import threading
 import logging
+import sys
 
 from time import sleep, localtime
 
 from modules.tm1637 import TM1637
 
-DIO = 26
-CLK = 19
+clockDIO = 26
+clockCLK = 19
 
-tmClock = TM1637(CLK, DIO)
+tmClock = TM1637(clockCLK, clockDIO)
 tmClock.brightness(1)
 
 class Clock:
-    def __init__(self, tm_instance):
+    def __init__(self,tm_instance):
+        global clockDIO
+        global clockCLK
         self.tm = tm_instance
+        #self.tm = TM1637(clockCLK, clockDIO)
+        #self.tm.brightness(1)
         self.show_colon = False
 
     def run(self):
         while True:
-            t = localtime()
-            self.show_colon = not self.show_colon
-            self.tm.numbers(t.tm_hour, t.tm_min, self.show_colon)
-            sleep(1)
-            if threading.current_thread().stopped():
-                logging.info("Clock thread marked as stopped")
-                break
+            try:
+                #logging.info("Clock thread running 1")
+                t = localtime()
+                self.show_colon = not self.show_colon
+                #logging.info("Clock thread running 2")
+                self.tm.numbers(t.tm_hour, t.tm_min, self.show_colon)
+                sleep(1)
+                if threading.current_thread().stopped():
+                    logging.info("Clock thread marked as stopped")
+                    break
+                #else:
+                #    logging.info("Clock thread running 3")
+            except:
+                err = str(sys.exc_info())
+                logging.error("Clock error known as "+err)   
 
-def runClock(BRIGHTNESS):
+def runClock(brightness):
     global tmClock
+    tmClock.brightness(int(brightness))
     clock = Clock(tmClock)
     clock.run()
 

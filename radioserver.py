@@ -37,7 +37,7 @@ logging.basicConfig(filename='/var/log/radioclock.log',format='%(asctime)s - %(n
 # Create swagger definition
 swagger = Swagger(app) 
 #setup background thread
-clockThread = StoppableThread(target=runClock, args=(0.1,))
+clockThread = StoppableThread(target=runClock, args=(1,))
 weatherThread = StoppableThread(target=getWeatherSched)
 buttonsThread = StoppableThread(target=setupButtons)
 @app.route('/')
@@ -103,7 +103,7 @@ def clockStart():
     try:
       brightness = request.args.get('brightness', '')
       if brightness == '': 
-        brightness = 0.1
+        brightness = 1
       logging.info("Starting clock")
       if clockThread is not None:
         clockThread.stop()
@@ -140,9 +140,9 @@ def clockStop():
         clockThread.stop()
       clearScreen()
       logging.info("Clear and stop weather display")
-      if weatherThread is not None:
-        weatherThread.stop()
       displayClear()
+      if weatherThread is not None:
+        weatherThread.stop()      
       return statusAnswer("Clock stopped")
     except:
       err = str(sys.exc_info())
