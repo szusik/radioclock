@@ -20,6 +20,11 @@ def killMusic():
         res = subprocess.call(command, shell = True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
         print("Unable to stop playing")
+    command = "killall -9 mpv" #command to be executed
+    try:
+        res = subprocess.call(command, shell = True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError as e:
+        print("Unable to stop playing")
     return
 def playLulaby(id):
     command = "amixer -c 1 set Speaker"

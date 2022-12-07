@@ -12,7 +12,7 @@ from modules.statusanswer import statusAnswer
 from modules.stoppableThread import StoppableThread
 import subprocess
 from modules.radio import playRadio, killMusic,playLulaby
-from modules.soundvolume import getSoundVolume, volumeUp, volumeDown
+from modules.soundvolume import getSoundVolume, volumeUp, volumeDown,setSoundVolume
 from modules.weather import getWeather,displayClear,getWeatherSched
 from modules.buttons import setupButtons
 import sys
@@ -117,7 +117,7 @@ def clockStart():
       return statusAnswer("Clock started")
     except:
       err = str(sys.exc_info())
-      logging.error("Got clock start error known as:",str(err))
+      logging.error("Got clock start error known as: "+str(err))
 @app.route('/api/clock/stop')
 def clockStop():
     """Stop displaying clock
@@ -146,12 +146,19 @@ def clockStop():
       return statusAnswer("Clock stopped")
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as:",str(err))
+      logging.error("Got error known as: "+str(err))
       return statusAnswer("Clock stopped error")
 @app.route('/api/radio/start/<radio_id>')
 def radioStart(radio_id):
     """Start playing radio
     ---
+    parameters:
+      - name: radio_id
+        in: path
+        type: string
+        enum: ['ns', '357']
+        required: true
+        default: ns
     responses:
       200:
         description: Status answer
@@ -169,7 +176,7 @@ def radioStart(radio_id):
       return statusAnswer("Radio started")
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as:",str(err))
+      logging.error("Got error known as: "+str(err))
       return statusAnswer("Radio start error")
 @app.route('/api/music/stop')
 def radioStop():
@@ -190,12 +197,19 @@ def radioStop():
       return statusAnswer("Music stopped")
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as:",str(err))
+      logging.error("Got error known as: "+str(err))
       return statusAnswer("Kill music error")
 @app.route('/api/lulaby/start/<lul_id>')
 def lulabyStart(lul_id):
     """Start playing lulaby
     ---
+    parameters:
+      - name: radio_id
+        in: path
+        type: string
+        enum: ['1', '2']
+        required: true
+        default: 1
     responses:
       200:
         description: Status answer
@@ -213,7 +227,7 @@ def lulabyStart(lul_id):
       return statusAnswer("Lulaby playing")
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as:",str(err))
+      logging.error("Got error known as: " +str(err))
       return statusAnswer("Lulaby error")
 @app.route('/api/volume/down')
 def volDown():
@@ -234,7 +248,7 @@ def volDown():
       return statusAnswer(status)
     except:
       err = str(sys.exc_info())
-      logging.error("Got volDown error known as:",str(err))
+      logging.error("Got volDown error known as: " +str(err))
 @app.route('/api/volume/up')
 def volUp():
     """Volume UP by 10%
@@ -254,9 +268,9 @@ def volUp():
       return statusAnswer(status)
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as:",str(err))
+      logging.error("Got error known as: " +str(err))
       return statusAnswer("Vol up error")
-@app.route('/api/volume/level')
+@app.route('/api/volume/level', methods=['GET'])
 def volumeLevel():
     """Volume level check
     ---
@@ -275,8 +289,34 @@ def volumeLevel():
       return statusAnswer(volume)
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as:",str(err))
+      logging.error("Got error known as: " +str(err))
       return statusAnswer("Get sound volume error")
+@app.route('/api/volume/level/<vol_level>', methods=['POST'])
+def volumeLevelSetup(vol_level):
+  """Volume level setup
+  ---
+  parameters:
+      - name: vol_level
+        in: path
+        type: integer
+        required: true
+        default: 60
+  responses:
+    200:
+      description: Status answer
+      schema:
+          type: object
+          properties:
+            status:
+              type: string
+              description: Status answer.
+  """
+  try:
+    return statusAnswer(setSoundVolume(vol_level))
+  except:
+    err = str(sys.exc_info())
+    logging.error("Got error known as: " +str(err))
+    return statusAnswer("Set sound volume error")
 logging.info("Starting clock")
 
 clockThread.start()

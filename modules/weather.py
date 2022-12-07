@@ -23,6 +23,16 @@ import threading
 import sys
 import schedule
 
+import rrdtool
+import Adafruit_DHT
+
+
+DHT_SENSOR = Adafruit_DHT.DHT11
+
+rrd_file = "/opt/radioclock/radioclock/temp-out.rrd"
+DHT_PIN = 23
+
+
 #Temperature 4-digit LED
 tmTemp = TM1637(clk=27, dio=17)
 tmTemp.brightness(0)
@@ -129,6 +139,7 @@ def getWeather():
             sleep(1)
             weather = json.loads(response.text)
             temp = round(float(weather['current']['temp']))
+            performRRDUpdate(temp)
             tmTemp.show("***1")
             if(temp<-9):
                 tmTemp.show(str(temp)+"*")
@@ -161,16 +172,16 @@ def displayIcon(kind):
         lastCall = now - inTimestamp
         minute = now.minute
         #print("Total seconds "+str(lastCall.total_seconds()))
-        if minute % 10 == 0 and lastCall.total_seconds() > 60:
-            break
+        #if minute % 10 == 0 and lastCall.total_seconds() > 60:
+        #    break
         for x in range(0,width-32,10):        
             displayIconAtPos(x,icon)
         now = dt.now()
         lastCall = now - inTimestamp
         minute = now.minute
         #print("Total seconds "+str(lastCall.total_seconds()))
-        if minute % 10 == 0 and lastCall.total_seconds() > 60:
-            break
+        #if minute % 10 == 0 and lastCall.total_seconds() > 60:
+        #    break
         if threading.current_thread().stopped():
             logging.info("Weather thread marked as stopped 2")
             break
@@ -248,3 +259,28 @@ def displayText(text,doScroll=True):
 
 #getWeather()
 #displayIcon("01")
+def createRRDDB():
+    global rrd_file
+    rrdtool.create(
+        rrd_file,
+        "--start", "now",
+        "--step", "600",
+        "RRA:AVERAGE:0.5:1:1200", #co 10 (1xstep) min 4 dni
+        "RRA:AVERAGE:0.5:3:96", # co 30 min 2 dni
+        "RRA:AVERAGE:0.5:144:740", # co 1 dzien , 740 dni
+        "DS:temp_in:GAUGE:1200:0:50",
+        "DS:temp_out:GAUGE:1200:-30:50",
+        "DS:humid:GAUGE:1200:0:100")
+
+def performRRDUpdate(temp_out):
+    global rrd_file
+    humid, temp = getDHTReading()
+    logging.debug("Temp={0:0.1f}*C Humidity={1:0.1f}%".format(temp, humid))
+    if not path.isfile(rrd_file):
+        createRRDDB()
+    rrdtool.update(rrd_file,"N:%s:%s:%s" %(temp,temp_out,humid))
+
+def getDHTReading():
+    global DHT_PIN
+    global DHT_SENSOR
+    return Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)

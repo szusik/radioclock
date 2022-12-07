@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 def getSoundVolume():    
     command = "/opt/radioclock/getSoundVolume.sh" #command to be executed
@@ -6,8 +7,9 @@ def getSoundVolume():
     try:
         res = subprocess.check_output(command, shell = True, stderr=subprocess.DEVNULL)
         volume = float(res.decode("utf-8"))
-    except subprocess.CalledProcessError as e:
-        print("Unable to check sound volume")
+    except:
+        err = str(sys.exc_info())
+        logging.error("Volume error known as "+err)
     return volume
 
 def setSoundVolume(volume):
@@ -16,9 +18,12 @@ def setSoundVolume(volume):
     try:
         res = subprocess.check_output(command, shell = True, stderr=subprocess.DEVNULL)
         rettext = res.decode("utf-8")
-    except subprocess.CalledProcessError as e:
-        print("Unable to set sound volume")
-    return rettext
+        logger.info("Set volume level "+ rettext)
+        return volume
+    except:
+        err = str(sys.exc_info())
+        logging.error("Volume error known as "+err)
+    return "-1"
 
 def volumeDown():
     volume = getSoundVolume()
