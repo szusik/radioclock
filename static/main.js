@@ -27,6 +27,11 @@ function updateVolume(){
             $(".volume_line").text("Current volume: " +data.status);
         }
     );
+    $.ajax("/api/temp").done(
+	function(data) { //data is a json object of response 
+	      $(".temp_line").text("Temperature in: "+data.temp_in+"*C out: "+data.temp_out+"*C "+"Humidity: "+data.humid+"%");
+	}
+    );
 }
 
 $.ajaxSetup({
