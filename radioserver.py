@@ -1,3 +1,4 @@
+from logging.handlers import TimedRotatingFileHandler
 from flask import Flask, jsonify, request, render_template
 from flasgger import Swagger
 from flask.helpers import make_response
@@ -13,7 +14,7 @@ from modules.stoppableThread import StoppableThread
 import subprocess
 from modules.radio import playRadio, killMusic,playLulaby
 from modules.soundvolume import getSoundVolume, volumeUp, volumeDown,setSoundVolume
-from modules.weather import getWeather,displayClear,getWeatherSched
+from modules.weather import getWeather,displayClear,getWeatherSched, getTempHumid
 from modules.buttons import setupButtons
 import sys
 import schedule
@@ -33,7 +34,12 @@ app.config['SWAGGER'] = {
     ]
 }
 #Setup logger
-logging.basicConfig(filename='/var/log/radioclock.log',format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logHandler = TimedRotatingFileHandler('/var/log/radioclock.log',
+                                       when="w",
+                                       interval=1,
+                                       backupCount=5)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, handlers=[logHandler])
+   
 # Create swagger definition
 swagger = Swagger(app) 
 #setup background thread
@@ -291,6 +297,32 @@ def volumeLevel():
       err = str(sys.exc_info())
       logging.error("Got error known as: " +str(err))
       return statusAnswer("Get sound volume error")
+@app.route('/api/temp', methods=['GET'])
+def volumeLevel():
+    """Get temperature 
+    ---
+    responses:
+      200:
+        description: Temperature
+        schema:
+            type: object
+            properties:
+              temp_in:
+                type: int
+                description: Temperature inside.
+              temp_out:
+                type: int
+                description: Temperature outside.
+              humid:
+                type: int
+                description: Humidity inside.
+    """
+    try:
+      return getTempHumid()
+    except:
+      err = str(sys.exc_info())
+      logging.error("Got error known as: " +str(err))
+      return statusAnswer("Get temperature error")
 @app.route('/api/volume/level/<vol_level>', methods=['POST'])
 def volumeLevelSetup(vol_level):
   """Volume level setup

@@ -25,7 +25,8 @@ import schedule
 
 import rrdtool
 import Adafruit_DHT
-
+import csv
+from flask import jsonify
 
 DHT_SENSOR = Adafruit_DHT.DHT11
 
@@ -284,3 +285,18 @@ def getDHTReading():
     global DHT_PIN
     global DHT_SENSOR
     return Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
+
+def writeTempHumidStats(temp_in,temp_out, humid):
+    with open('temp.csv', 'w',newline='') as csvfile:
+        tempwriter = csv.writer(csvfile, delimiter=' ',
+                            quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        tempwriter.writerow([temp_in,temp_out,humid])
+
+def getTempHumid():
+    with open('temp.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+        for row in reader:
+            temp_in=row[1]
+            temp_out=row[2]
+            humid=row[3]
+        return  jsonify({ 'temp_in': str(temp_in), 'temp_out': str(temp_out),'humid': str(humid) })
