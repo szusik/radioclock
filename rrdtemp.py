@@ -23,10 +23,6 @@ def createRRDDB():
         "DS:temp:GAUGE:600:0:50",
         "DS:humid:GAUGE:600:0:100")
 
-def updateRRDDB():
-    # feed updates to the database
-    rrdtool.update("test.rrd", "N:32")
-
 def testRRDDBExists():
     return os.path.isfile(rrd_file)
 
