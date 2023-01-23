@@ -35,7 +35,7 @@ app.config['SWAGGER'] = {
 }
 #Setup logger
 logHandler = TimedRotatingFileHandler('/var/log/radioclock.log',
-                                       when="w",
+                                       when="w0",
                                        interval=1,
                                        backupCount=5)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, handlers=[logHandler])
@@ -298,7 +298,7 @@ def volumeLevel():
       logging.error("Got error known as: " +str(err))
       return statusAnswer("Get sound volume error")
 @app.route('/api/temp', methods=['GET'])
-def volumeLevel():
+def temperature():
     """Get temperature 
     ---
     responses:
@@ -308,13 +308,13 @@ def volumeLevel():
             type: object
             properties:
               temp_in:
-                type: int
+                type: number
                 description: Temperature inside.
               temp_out:
-                type: int
+                type: number
                 description: Temperature outside.
               humid:
-                type: int
+                type: number
                 description: Humidity inside.
     """
     try:

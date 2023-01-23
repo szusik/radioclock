@@ -280,6 +280,7 @@ def performRRDUpdate(temp_out):
     if not path.isfile(rrd_file):
         createRRDDB()
     rrdtool.update(rrd_file,"N:%s:%s:%s" %(temp,temp_out,humid))
+    writeTempHumidStats(temp,temp_out, humid)
 
 def getDHTReading():
     global DHT_PIN
@@ -287,16 +288,23 @@ def getDHTReading():
     return Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
 
 def writeTempHumidStats(temp_in,temp_out, humid):
-    with open('temp.csv', 'w',newline='') as csvfile:
-        tempwriter = csv.writer(csvfile, delimiter=' ',
+    try:
+        with open('/opt/radioclock/radioclock/temp.csv', 'w',newline='') as csvfile:
+            tempwriter = csv.writer(csvfile, delimiter=' ',
                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        tempwriter.writerow([temp_in,temp_out,humid])
+            tempwriter.writerow([temp_in,temp_out,humid])
+    except:
+        logging.error("Unable to write temp stats file "+str(sys.exc_info()))
 
 def getTempHumid():
-    with open('temp.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-        for row in reader:
-            temp_in=row[1]
-            temp_out=row[2]
-            humid=row[3]
-        return  jsonify({ 'temp_in': str(temp_in), 'temp_out': str(temp_out),'humid': str(humid) })
+    try:
+        with open('/opt/radioclock/radioclock/temp.csv', newline='') as csvfile:
+            reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+            for row in reader:
+                temp_in=row[0]
+                temp_out=row[1]
+                humid=row[2]
+            return  jsonify({ 'temp_in': str(temp_in), 'temp_out': str(temp_out),'humid': str(humid) })
+    except:
+        logging.error("Unable to read temp stats file "+str(sys.exc_info()))
+        return jsonify({ 'temp_in': 0, 'temp_out': 0,'humid': 0 })
