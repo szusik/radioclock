@@ -17,7 +17,7 @@ from modules.soundvolume import getSoundVolume, volumeUp, volumeDown,setSoundVol
 from modules.weather import getWeather,displayClear,getWeatherSched, getTempHumid
 from modules.buttons import setupButtons
 import sys
-import schedule
+import traceback
 
 app = Flask(__name__)
 app.config['SWAGGER'] = {
@@ -122,8 +122,8 @@ def clockStart():
       weatherThread.start()
       return statusAnswer("Clock started")
     except:
-      err = str(sys.exc_info())
-      logging.error("Got clock start error known as: "+str(err))
+      exc_type, exc_value, exc_traceback = sys.exc_info()
+      logging.error("Got clock start error known as: "+str(traceback.format_tb(exc_traceback)))
 @app.route('/api/clock/stop')
 def clockStop():
     """Stop displaying clock
