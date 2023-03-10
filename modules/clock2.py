@@ -8,20 +8,14 @@ import sys
 from time import sleep, localtime
 
 from modules.tm1637 import TM1637
+import modules.config as cfg
 
-clockDIO = 26
-clockCLK = 19
-
-tmClock = TM1637(clockCLK, clockDIO)
+tmClock = TM1637(cfg.clockCLK, cfg.clockDIO)
 tmClock.brightness(1)
 
 class Clock:
     def __init__(self,tm_instance):
-        global clockDIO
-        global clockCLK
         self.tm = tm_instance
-        #self.tm = TM1637(clockCLK, clockDIO)
-        #self.tm.brightness(1)
         self.show_colon = False
 
     def run(self):

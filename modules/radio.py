@@ -29,9 +29,9 @@ def killMusic():
 def playLulaby(id):
     command = "amixer -c 1 set Speaker"
     if id == '1':
-        command += " 90% && mplayer /opt/music/ajde-jano.webm"
+        command += " 90% && mplayer /opt/music/kortez-lato-z-radiem.webm"
     elif id == '2':
-        command += " 80% && mplayer /opt/music/ta-dorotka.webm"
+        command += " 80% && mplayer /opt/music/relax-blues-rock.webm"
     try:
         res = subprocess.call(command, shell = True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:

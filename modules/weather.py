@@ -22,34 +22,21 @@ import logging
 import threading
 import sys
 import schedule
-
+import traceback 
 import rrdtool
 import Adafruit_DHT
 import csv
 from flask import jsonify
+import modules.config as cfg
 
 DHT_SENSOR = Adafruit_DHT.DHT11
 
-rrd_file = "/opt/radioclock/radioclock/temp-out.rrd"
-DHT_PIN = 23
-
-
 #Temperature 4-digit LED
-tmTemp = TM1637(clk=27, dio=17)
+tmTemp = TM1637(clk=cfg.tempCLK, dio=cfg.tempDIO)
 tmTemp.brightness(0)
 
-apikey = "c1b7c56b934a179d0eee7603d16ad0a8"
-lat = "52.42254135407858"
-lon = "13.536243826790663"
-
-#Settings for OLED display
-# Raspberry Pi pin configuration:
-RST = 24
-DC = 23
-SPI_PORT = 0
-SPI_DEVICE = 0
 # 128x32 display with hardware I2C:
-dOled = Adafruit_SSD1306.SSD1306_128_32(rst=RST)
+dOled = Adafruit_SSD1306.SSD1306_128_32(rst=cfg.oledRST)
 dOled.begin()
 scrollspeed = 1
 # Get display width and height.
@@ -85,12 +72,12 @@ def getWeatherAsync():
         workerThread.start()
     except:
         logging.error("Other error - Async")
-        err = str(sys.exc_info())
-        logging.error("Error known as "+err)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        err = traceback.format_tb(exc_traceback)
+        logging.error("Error known as "+str(err))
         tmTemp.show("UPS")
         sleep(1)
         displayText(str(err))
-        print("Other error occurred:",str(err))
 
 def getWeatherSched():
     global tmTemp
@@ -104,17 +91,15 @@ def getWeatherSched():
         logging.info("Calling scheduler for weather done")
     except:
         logging.error("Other error Sched")
-        err = str(sys.exc_info())
-        logging.error("Error known as "+err)
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        err = traceback.format_tb(exc_traceback)
+        logging.error("Error known as "+str(err))
         tmTemp.show("UPS")
         sleep(1)
         displayText(str(err))
         print("Other error occurred:",str(err))
 
 def getWeather():
-    global apikey
-    global lat
-    global lon
     global tmTemp
     while not threading.current_thread().stopped():
         try:
@@ -123,14 +108,14 @@ def getWeather():
                 logging.info("Weather thread marked as stopped 1")
                 break            
             #display question mark
-            iconpath = "/opt/radioclock/radioclock/static/icons/0.png"
+            iconpath = cfg.basePath+"/static/icons/0.png"
             icon = Image.open(iconpath)
             displayIconAtPos(60,icon,False)
             sleep(1)
             tmTemp.show("1***")
             sleep(1)
             #make a request for weather
-            response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+lat+"&lon="+lon+"&appid="+apikey+"&units=metric&exclude=daily,minutely,hourly")
+            response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+cfg.lat+"&lon="+cfg.lon+"&appid="+cfg.apikey+"&units=metric&exclude=daily,minutely,hourly")
             # If the response was successful, no Exception will be raised
             tmTemp.show("*1**")
             sleep(1)
@@ -150,8 +135,9 @@ def getWeather():
         except:
             tmTemp.show("UPS")
             logging.error("Other error - main weather")
-            err = str(sys.exc_info())
-            logging.error("Error known as "+err)            
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            err = traceback.format_tb(exc_traceback)
+            logging.error("Error known as "+str(err))            
             sleep(1)
             displayText(str(err))
             print("Other error occurred:",str(err))  # Python 3.6           
@@ -160,10 +146,10 @@ def getWeather():
 def displayIcon(kind):
     # Create image buffer.
     # Make sure to create image with mode '1' for 1-bit color.
-    iconpath = "/opt/radioclock/radioclock/static/icons/"+kind+".png"
+    iconpath = cfg.basePath+"/static/icons/"+kind+".png"
 
     if not path.exists(iconpath):
-        iconpath = "/opt/radioclock/radioclock/static/icons/0.png"
+        iconpath = cfg.basePath+"/static/icons/0.png"
     icon = Image.open(iconpath).convert('1')
     inTimestamp = dt.now()
     while not threading.current_thread().stopped():
@@ -211,7 +197,7 @@ def displayText(text,doScroll=True):
     image = Image.new('1', (width, height))
 
     # Load default font.
-    font = ImageFont.truetype("/opt/radioclock/radioclock/modules/VCR_OSD_MONO_1.001.ttf", 20)
+    font = ImageFont.truetype(cfg.basePath+"/modules/VCR_OSD_MONO_1.001.ttf", 20)
     # Create drawing object.
     draw = ImageDraw.Draw(image)
     
@@ -261,9 +247,8 @@ def displayText(text,doScroll=True):
 #getWeather()
 #displayIcon("01")
 def createRRDDB():
-    global rrd_file
     rrdtool.create(
-        rrd_file,
+        cfg.rrdFile,
         "--start", "now",
         "--step", "600",
         "RRA:AVERAGE:0.5:1:1200", #co 10 (1xstep) min 4 dni
@@ -274,31 +259,31 @@ def createRRDDB():
         "DS:humid:GAUGE:1200:0:100")
 
 def performRRDUpdate(temp_out):
-    global rrd_file
     humid, temp = getDHTReading()
     logging.debug("Temp={0:0.1f}*C Humidity={1:0.1f}%".format(temp, humid))
-    if not path.isfile(rrd_file):
+    if not path.isfile(cfg.rrdFile):
         createRRDDB()
-    rrdtool.update(rrd_file,"N:%s:%s:%s" %(temp,temp_out,humid))
+    rrdtool.update(cfg.rrdFile,"N:%s:%s:%s" %(temp,temp_out,humid))
     writeTempHumidStats(temp,temp_out, humid)
 
 def getDHTReading():
-    global DHT_PIN
     global DHT_SENSOR
-    return Adafruit_DHT.read_retry(DHT_SENSOR, DHT_PIN)
+    return Adafruit_DHT.read_retry(DHT_SENSOR, cfg.dhtPIN)
 
 def writeTempHumidStats(temp_in,temp_out, humid):
     try:
-        with open('/opt/radioclock/radioclock/temp.csv', 'w',newline='') as csvfile:
+        with open(cfg.basePath+'/temp.csv', 'w',newline='') as csvfile:
             tempwriter = csv.writer(csvfile, delimiter=' ',
                             quotechar='|', quoting=csv.QUOTE_MINIMAL)
             tempwriter.writerow([temp_in,temp_out,humid])
     except:
-        logging.error("Unable to write temp stats file "+str(sys.exc_info()))
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        err = traceback.format_tb(exc_traceback)
+        logging.error("Unable to write temp stats file "+str(err))
 
 def getTempHumid():
     try:
-        with open('/opt/radioclock/radioclock/temp.csv', newline='') as csvfile:
+        with open(cfg.basePath+'/temp.csv', newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
             for row in reader:
                 temp_in=row[0]
@@ -306,5 +291,7 @@ def getTempHumid():
                 humid=row[2]
             return  jsonify({ 'temp_in': str(temp_in), 'temp_out': str(temp_out),'humid': str(humid) })
     except:
-        logging.error("Unable to read temp stats file "+str(sys.exc_info()))
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        err = traceback.format_tb(exc_traceback)
+        logging.error("Unable to read temp stats file "+str(err))
         return jsonify({ 'temp_in': 0, 'temp_out': 0,'humid': 0 })
