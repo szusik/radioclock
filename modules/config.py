@@ -1,3 +1,4 @@
+import logging
 # CONFIGURATION MODULE
 
 #PINs FOR CLOCK DISPLAY
@@ -20,3 +21,7 @@ rrdFile = basePath+"/temp-out.rrd"
 
 #Settings for OLED display
 oledRST = 24
+
+def init():
+    print("Config init")
+    logging.info("Config initialized")

@@ -16,6 +16,7 @@ from modules.radio import playRadio, killMusic,playLulaby
 from modules.soundvolume import getSoundVolume, volumeUp, volumeDown,setSoundVolume
 from modules.weather import getWeather,displayClear,getWeatherSched, getTempHumid
 from modules.buttons import setupButtons
+import modules.config as cfg
 import sys
 import traceback
 
@@ -39,7 +40,7 @@ logHandler = TimedRotatingFileHandler('/var/log/radioclock.log',
                                        interval=1,
                                        backupCount=5)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, handlers=[logHandler])
-   
+cfg.init()
 # Create swagger definition
 swagger = Swagger(app) 
 #setup background thread
