@@ -106,7 +106,12 @@ def getWeather():
             logging.info("Preparing request for weather")
             if threading.current_thread().stopped():
                 logging.info("Weather thread marked as stopped 1")
-                break            
+                break
+            if cfg.apikey == "PUT_YOUR_OWN_API_TOKEN":
+                logging.info("Missing api weahter token")
+                tmTemp.show("TOKE")
+                break
+            logging.info("TOKEN "+cfg.apikey)          
             #display question mark
             iconpath = cfg.basePath+"/static/icons/0.png"
             icon = Image.open(iconpath)

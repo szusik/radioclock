@@ -106,3 +106,4 @@ venv.bak/
 scrollphathd
 csvtest.py
 test.csv
+config.json
