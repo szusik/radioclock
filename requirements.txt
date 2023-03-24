@@ -1,0 +1,13 @@
+#plain python
+flask
+flasgger
+logging
+requests
+schedule
+rrdtool
+#RPI specific
+Adafruit_SSD1306
+Adafruit_GPIO
+Adafruit_DHT
+RPi
+wiringpi

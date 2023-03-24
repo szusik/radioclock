@@ -1,0 +1,73 @@
+div.main_window {
+    width: 508px;
+    margin: auto;
+}
+
+div.app_row {
+    width: 100%;
+}
+
+div.app_state {
+    min-height: 30px;
+}
+
+div.app {
+    width: 45%;
+    height: 150px;
+    margin: 2px;
+    background-color: darkcyan;
+    float: left;
+    cursor: pointer;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+div#radioON {
+    background-image: url('/static/radio.png');
+}
+
+div#radio357 {
+    background-image: url('/static/radio357.png');
+}
+
+div#soundOFF {
+    background-image: url('/static/musicoff.png');
+}
+
+div#clockON {
+    background-image: url('/static/clock.png');
+}
+
+div#clockOFF {
+    background-image: url('/static/clockoff.png');
+}
+
+div#volumeUP {
+    background-image: url('/static/volumeup.png');
+}
+
+div#volumeDOWN {
+    background-image: url('/static/volumedown.png');
+}
+
+div#lulabyON {
+    background-image: url('/static/lulaby.png');
+}
+
+div#lulabyTwo {
+    background-image: url('/static/lulaby2.png');
+}
+
+div.choosen {
+    background-color: chocolate;
+}
+
+/* Make content area fill the entire browser window */
+html,
+.fullscreen {
+  display: flex;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
