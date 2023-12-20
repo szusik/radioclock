@@ -62,38 +62,41 @@ def displayClear():
 def getWeatherAsync():
     global workerThread
     global tmTemp
+    logger = logging.getLogger(threading.current_thread().name)
     try:
-        logging.info("Working on weather")
+        logger.info("Working on weather thread")
         if workerThread is not None:
-            logging.info("Requested stop of worker thread 1")
+            logger.info("Requested stop of old worker thread")
             workerThread.stop()
             workerThread.join()
         workerThread = StoppableThread(target=getWeather)
         workerThread.start()
+        logger.info("Working on weather thread "+workerThread.name+" done")
     except:
-        logging.error("Other error - Async")
+        logger.error("Other error - Async")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         err = traceback.format_tb(exc_traceback)
-        logging.error("Error known as "+str(err))
+        logger.error("Error known as "+str(err))
         tmTemp.show("UPS")
         sleep(1)
         displayText(str(err))
 
 def getWeatherSched():
     global tmTemp
+    logger = logging.getLogger(threading.current_thread().name)
     try:
-        logging.info("Calling scheduler for weather")
-        getWeatherAsync()
+        logger.info("Calling scheduler for weather")
+        getWeatherAsync() #just initial call to feed the data 
         schedule.every(10).minutes.do(getWeatherAsync)
         while True:
             schedule.run_pending()
             sleep(1)
-        logging.info("Calling scheduler for weather done")
+        logger.info("Calling scheduler for weather done")
     except:
-        logging.error("Other error Sched")
+        logger.error("Other error Sched")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         err = traceback.format_tb(exc_traceback)
-        logging.error("Error known as "+str(err))
+        logger.error("Error known as "+str(err))
         tmTemp.show("UPS")
         sleep(1)
         displayText(str(err))
@@ -101,17 +104,19 @@ def getWeatherSched():
 
 def getWeather():
     global tmTemp
+    logger = logging.getLogger(threading.current_thread().name)
+    logger.info("Got schedule for weather")
     while not threading.current_thread().stopped():
         try:
-            logging.info("Preparing request for weather")
+            logger.info("Preparing request for weather")
             if threading.current_thread().stopped():
-                logging.info("Weather thread marked as stopped 1")
+                logger.info("Weather thread marked as stopped")
                 break
             if cfg.apikey == "PUT_YOUR_OWN_API_TOKEN":
-                logging.info("Missing api weahter token")
+                logger.info("Missing api weahter token")
                 tmTemp.show("TOKE")
                 break
-            logging.info("TOKEN "+cfg.apikey)          
+            logger.info("TOKEN "+cfg.apikey)          
             #display question mark
             iconpath = cfg.basePath+"/static/icons/0.png"
             icon = Image.open(iconpath)
@@ -124,13 +129,13 @@ def getWeather():
             # If the response was successful, no Exception will be raised
             tmTemp.show("*1**")
             sleep(1)
-            logging.info("Request for weather done")
+            logger.info("Request for weather done")
             response.raise_for_status()
             tmTemp.show("**1*")
             sleep(1)
             weather = json.loads(response.text)
             temp = round(float(weather['current']['temp']))
-            performRRDUpdate(temp)
+            performRRDUpdateAsync(temp)
             tmTemp.show("***1")
             if(temp<-9):
                 tmTemp.show(str(temp)+"*")
@@ -139,10 +144,10 @@ def getWeather():
             displayIcon(weather['current']['weather'][0]['icon'])
         except:
             tmTemp.show("UPS")
-            logging.error("Other error - main weather")
+            logger.error("Other error - main weather")
             exc_type, exc_value, exc_traceback = sys.exc_info()
             err = traceback.format_tb(exc_traceback)
-            logging.error("Error known as "+str(err))            
+            logger.error("Error known as "+str(err))            
             sleep(1)
             displayText(str(err))
             print("Other error occurred:",str(err))  # Python 3.6           
@@ -262,6 +267,19 @@ def createRRDDB():
         "DS:temp_in:GAUGE:1200:0:50",
         "DS:temp_out:GAUGE:1200:-30:50",
         "DS:humid:GAUGE:1200:0:100")
+
+def performRRDUpdateAsync(temp_out):
+    logger = logging.getLogger(threading.current_thread().name)
+    try:
+        logger.info("Working RRD thread")
+        rrdThread = StoppableThread(target=performRRDUpdate, args=(temp_out,))
+        rrdThread.start()
+        logger.info("Working on RRD thread "+rrdThread.name+" done")
+    except:
+        logger.error("Other error - Async")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        err = traceback.format_tb(exc_traceback)
+        logger.error("Error known as "+str(err))
 
 def performRRDUpdate(temp_out):
     humid, temp = getDHTReading()

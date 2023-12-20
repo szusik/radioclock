@@ -24,6 +24,7 @@ def button_callback(channel):
             action.start()
         elif (channel==RESET):
             bName='RESET'
+            killMusic()
             action = threading.Thread(target=playRadio, args=('357',))
             action.start()
         elif (channel==REPEAT):
