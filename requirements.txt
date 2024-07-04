@@ -9,5 +9,5 @@ rrdtool
 Adafruit_SSD1306
 Adafruit_GPIO
 Adafruit_DHT
-RPi
+RPi.GPIO
 wiringpi
