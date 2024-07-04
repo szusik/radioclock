@@ -18,7 +18,7 @@ It runs web server with Progressive Web App and Swagger UI for API endpoints.
 # Dependencies
 
 All of known to me for now deps are in requirements.txt so one could apply those with
-> pip install -r requirements.tx
+> pip install -r requirements.txt
 
 # Running
 
