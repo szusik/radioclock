@@ -125,7 +125,7 @@ def getWeather():
             tmTemp.show("1***")
             sleep(1)
             #make a request for weather
-            response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+cfg.lat+"&lon="+cfg.lon+"&appid="+cfg.apikey+"&units=metric&exclude=daily,minutely,hourly")
+            response = requests.get("https://api.openweathermap.org/data/3.0/onecall?lat="+cfg.lat+"&lon="+cfg.lon+"&appid="+cfg.apikey+"&units=metric&exclude=daily,minutely,hourly")
             # If the response was successful, no Exception will be raised
             tmTemp.show("*1**")
             sleep(1)
