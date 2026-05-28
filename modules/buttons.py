@@ -1,4 +1,33 @@
-import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
+try:
+    import RPi.GPIO as GPIO # Import Raspberry Pi GPIO library
+except ImportError:
+    class GPIO:
+        BCM = 1
+        IN = 1
+        PUD_UP = 1
+        FALLING = 1
+        @staticmethod
+        def setwarnings(flag):
+            return
+        @staticmethod
+        def setmode(flag):
+            return
+        @staticmethod
+        def setmode(flag):
+            return
+        @staticmethod
+        def setup(button, mode, pull_up_down):
+            return
+        @staticmethod
+        def add_event_detect(but,mode,callback, bouncetime):
+            return
+        @staticmethod
+        def cleanup():
+            return
+        @staticmethod
+        def getmode():
+            return GPIO.BCM
+
 from modules.radio import playRadio, killMusic,playLulaby
 from modules.soundvolume import volumeUp, volumeDown
 import logging

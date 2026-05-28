@@ -4,7 +4,11 @@ import sys
 
 from time import sleep, localtime
 
-from modules.tm1637 import TM1637
+try:
+    from modules.tm1637 import TM1637
+except (ImportError, RuntimeError):
+    from modules.tm1637_mock import TM1637Mock as TM1637
+    logging.warning("wiringpi not available — using TM1637 mock display")
 import modules.config as cfg
 
 tmClock = TM1637(cfg.clockCLK, cfg.clockDIO)

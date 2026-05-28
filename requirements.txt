@@ -4,10 +4,11 @@ flasgger
 logging
 requests
 schedule
-rrdtool
+pillow
+#rrdtool
 #RPI specific
-Adafruit_SSD1306
-Adafruit_GPIO
-Adafruit_DHT
-RPi.GPIO
-wiringpi
+#Adafruit_SSD1306
+#Adafruit_GPIO
+#Adafruit_DHT
+#RPi.GPIO
+#wiringpi

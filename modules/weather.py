@@ -6,8 +6,11 @@ import urllib.parse
 import urllib3
 import time
 from time import sleep
-import Adafruit_GPIO.SPI as SPI
-import Adafruit_SSD1306
+try:
+    import Adafruit_GPIO.SPI as SPI
+    import Adafruit_SSD1306
+except ImportError:
+    import modules.ssd1306_mock as Adafruit_SSD1306
 from modules.stoppableThread import StoppableThread
 
 from PIL import Image
@@ -16,15 +19,33 @@ from PIL import ImageFont
 import os.path
 from os import path
 import math
-from modules.tm1637 import TM1637
+try:
+    from modules.tm1637 import TM1637
+except (ImportError, RuntimeError):
+    from modules.tm1637_mock import TM1637Mock as TM1637
 from datetime import datetime as dt
 import logging
 import threading
 import sys
 import schedule
 import traceback 
-import rrdtool
-import Adafruit_DHT
+try:
+    import rrdtool
+except ImportError:
+    class rrdtool:
+        @staticmethod
+        def create(*a, **kw): pass
+        @staticmethod
+        def update(*a, **kw): pass
+
+try:
+    import Adafruit_DHT
+except ImportError:
+    class Adafruit_DHT:
+        DHT11 = 11
+        @staticmethod
+        def read_retry(sensor, pin):
+            return (50.0, 22.0)
 import csv
 from flask import jsonify
 import modules.config as cfg
@@ -125,7 +146,7 @@ def getWeather():
             tmTemp.show("1***")
             sleep(1)
             #make a request for weather
-            response = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat="+cfg.lat+"&lon="+cfg.lon+"&appid="+cfg.apikey+"&units=metric&exclude=daily,minutely,hourly")
+            response = requests.get("https://api.openweathermap.org/data/2.5/weather?lat="+cfg.lat+"&lon="+cfg.lon+"&appid="+cfg.apikey+"&units=metric&exclude=daily,minutely,hourly")
             # If the response was successful, no Exception will be raised
             tmTemp.show("*1**")
             sleep(1)
@@ -134,14 +155,14 @@ def getWeather():
             tmTemp.show("**1*")
             sleep(1)
             weather = json.loads(response.text)
-            temp = round(float(weather['current']['temp']))
+            temp = round(float(weather['main']['temp']))
             performRRDUpdateAsync(temp)
             tmTemp.show("***1")
             if(temp<-9):
                 tmTemp.show(str(temp)+"*")
             else:
                 tmTemp.temperature(temp)
-            displayIcon(weather['current']['weather'][0]['icon'])
+            displayIcon(weather['weather'][0]['icon'])
         except:
             tmTemp.show("UPS")
             logger.error("Other error - main weather")

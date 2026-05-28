@@ -14,6 +14,8 @@ tempCLK = 27
 #PINs for TEMP SENSOR
 dhtPIN = 23
 
+logfile="radioclock.log"
+
 #Weather API details
 apikey = "PUT_YOUR_OWN_API_TOKEN"
 lat = "0"
@@ -43,6 +45,8 @@ def init():
     global apikey
     global lat
     global lon
+    global basePath
+    global rrdFile
     print("Config init")
     confFileName="config.json"
     try:
@@ -55,6 +59,9 @@ def init():
             logging.info("Got APIKEY "+apikey)
             lat = str(confdata['lat'])
             lon = str(confdata['lon'])
+            if 'basePath' in confdata:
+                basePath = str(confdata['basePath'])
+                rrdFile = basePath + "/temp-out.rrd"
     except:
         logging.error("Reading config error")
         exc_type, exc_value, exc_traceback = sys.exc_info()

@@ -31,13 +31,14 @@ app.config['SWAGGER'] = {
         }
     ]
 }
+cfg.init()
 #Setup logger
-logHandler = TimedRotatingFileHandler('/var/log/radioclock.log',
+logHandler = TimedRotatingFileHandler(cfg.logfile,
                                        when="w0",
                                        interval=1,
                                        backupCount=5)
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, handlers=[logHandler])
-cfg.init()
+
 # Create swagger definition
 swagger = Swagger(app) 
 #setup background thread
