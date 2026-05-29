@@ -3,6 +3,7 @@ import json
 import os
 import traceback 
 import sys
+from logging import Logger
 # CONFIGURATION MODULE
 
 #PINs FOR CLOCK DISPLAY
@@ -65,6 +66,7 @@ def init():
                 rrdFile = basePath + "/temp-out.rrd"
             if 'logfile' in confdata:
                 logfile = str(confdata['logfile'])
+        print("Log path "+str(logfile))
     except:
         logging.error("Reading config error")
         exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -72,3 +74,13 @@ def init():
         logging.error("Error known as "+str(err))
 
     logging.info("Config initialized")
+
+
+def logError(exc: Exception, logger: Logger, extras: str):
+    try:
+        if extras:
+            logger.info(extras);
+        exc_traceback = sys.exc_info()
+        logger.error("Error: "+str(exc)+" file: "+str(exc.__traceback__.tb_frame)+":"+str(exc.__traceback__.tb_lineno))
+    except:
+        logger.error("Fallback error log: "+str(exc_traceback))

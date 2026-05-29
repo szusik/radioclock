@@ -62,6 +62,11 @@ div.choosen {
     background-color: chocolate;
 }
 
+div.app_stream button {
+    background-color: darkcyan;
+    color: aqua;
+}
+
 /* Make content area fill the entire browser window */
 html,
 .fullscreen {

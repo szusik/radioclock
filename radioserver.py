@@ -9,7 +9,7 @@ import logging.config
 import threading
 from modules.statusanswer import statusAnswer
 from modules.stoppableThread import StoppableThread
-from modules.radio import playRadio, killMusic,playLulaby
+from modules.radio import playRadio, killMusic, playLulaby, playStream
 from modules.soundvolume import getSoundVolume, volumeUp, volumeDown,setSoundVolume
 from modules.weather import getWeather,displayClear,getWeatherSched, getTempHumid
 from modules.buttons import setupButtons
@@ -37,7 +37,9 @@ logHandler = TimedRotatingFileHandler(cfg.logfile,
                                        when="w0",
                                        interval=1,
                                        backupCount=5)
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, handlers=[logHandler])
+logHandler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logging.getLogger().setLevel(logging.INFO)
+logging.getLogger().addHandler(logHandler)
 
 # Create swagger definition
 swagger = Swagger(app) 
@@ -151,7 +153,7 @@ def clockStop():
       return statusAnswer("Clock stopped")
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as: "+str(err))
+      cfg.logError.error(err,logging)
       return statusAnswer("Clock stopped error")
 @app.route('/api/radio/start/<radio_id>')
 def radioStart(radio_id):
@@ -181,7 +183,7 @@ def radioStart(radio_id):
       return statusAnswer("Radio started")
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as: "+str(err))
+      cfg.logError.error(err,logging)
       return statusAnswer("Radio start error")
 @app.route('/api/music/stop')
 def radioStop():
@@ -202,7 +204,7 @@ def radioStop():
       return statusAnswer("Music stopped")
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as: "+str(err))
+      cfg.logError.error(err,logging)
       return statusAnswer("Kill music error")
 @app.route('/api/lulaby/start/<lul_id>')
 def lulabyStart(lul_id):
@@ -232,7 +234,7 @@ def lulabyStart(lul_id):
       return statusAnswer("Lulaby playing")
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as: " +str(err))
+      cfg.logError.error(err,logging)
       return statusAnswer("Lulaby error")
 @app.route('/api/volume/down')
 def volDown():
@@ -273,7 +275,7 @@ def volUp():
       return statusAnswer(status)
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as: " +str(err))
+      cfg.logError.error(err,logging)
       return statusAnswer("Vol up error")
 @app.route('/api/volume/level', methods=['GET'])
 def volumeLevel():
@@ -294,7 +296,7 @@ def volumeLevel():
       return statusAnswer(volume)
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as: " +str(err))
+      cfg.logError.error(err,logging)
       return statusAnswer("Get sound volume error")
 @app.route('/api/temp', methods=['GET'])
 def temperature():
@@ -320,8 +322,42 @@ def temperature():
       return getTempHumid()
     except:
       err = str(sys.exc_info())
-      logging.error("Got error known as: " +str(err))
+      cfg.logError.error(err,logging)
       return statusAnswer("Get temperature error")
+@app.route('/api/radio/stream', methods=['POST'])
+def streamStart():
+    """Start playing a custom stream URL
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            stream:
+              type: string
+              description: Stream URL to play.
+    responses:
+      200:
+        description: Status answer
+        schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: Status answer.
+    """
+    try:
+        stream = request.json.get('stream', '')
+        killMusic()
+        radio = threading.Thread(target=playStream, args=(stream,))
+        radio.start()
+        return statusAnswer("Stream started")
+    except:
+        err = str(sys.exc_info())
+        cfg.logError.error(err,logging)
+        return statusAnswer("Stream start error")
 @app.route('/api/volume/level/<vol_level>', methods=['POST'])
 def volumeLevelSetup(vol_level):
   """Volume level setup
@@ -346,7 +382,7 @@ def volumeLevelSetup(vol_level):
     return statusAnswer(setSoundVolume(vol_level))
   except:
     err = str(sys.exc_info())
-    logging.error("Got error known as: " +str(err))
+    cfg.logError.error(err,logging)
     return statusAnswer("Set sound volume error")
 logging.info("Starting clock")
 

@@ -23,7 +23,11 @@
                 <div class="app_state">
 			<p class="volume_line"></p>
 			<p class="temp_line"></p>
-                </div>                
+                </div>
+                 <div class="app_row app_stream">
+                    <input type="text" id="stream_url" placeholder="Stream URL (http://...)" />
+                    <button id="stream_btn" onclick="playStream()">Play</button>
+                </div>               
                 <div class="app_row">
                     <div class="app" id="lulabyON" onclick="golink(this,'/api/lulaby/start/1',updateVolume)"></div>
                     <div class="app" id="lulabyTwo" onclick="golink(this,'/api/lulaby/start/2',updateVolume)"></div>
@@ -48,8 +52,44 @@
         </div>
         
         <script type="text/javascript">
-            
+        var golink = function(divObj, apipath, afterFunction) {
+            $(divObj).addClass("choosen");
+            $.ajax(apipath).done(function(data) {
+                if (afterFunction !== undefined) afterFunction.call();
+            });
+            setTimeout(function(){ $(divObj).removeClass("choosen"); }, 1000);
+        }
 
+        function playStream() {
+            var url = $('#stream_url').val().trim();
+            if (!url) return;
+            $('#stream_btn').prop('disabled', true);
+            $.ajax({
+                url: '/api/radio/stream',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ stream: url }),
+                complete: function() { $('#stream_btn').prop('disabled', false); }
+            });
+        }
+
+        function updateVolume() {
+            $.ajax("/api/volume/level").done(function(data) {
+                $(".volume_line").text("Current volume: " + data.status);
+            });
+            $.ajax("/api/temp").done(function(data) {
+                $(".temp_line").text("Temperature in: " + data.temp_in + "*C out: " + data.temp_out + "*C Humidity: " + data.humid + "%");
+            });
+        }
+
+        $.ajaxSetup({ async: false });
+        $(document).ajaxComplete(function(event, xhr, settings) {
+            $(".state_line").text(settings.url + " : " + xhr.status + " - " + xhr.statusText);
+        });
+        $(document).ajaxSend(function(event, xhr, settings) {
+            $(".state_line").text("Calling " + settings.url + " ... ");
+        });
+        $(document).ready(updateVolume());
         </script>
         <noscript>All fine just not dynamic</noscript>
         <script src="/static/main.js"></script>
