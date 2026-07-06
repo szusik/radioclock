@@ -44,7 +44,7 @@ def _watch_icy_titles(proc):
             if 'icy-title' in line.lower():
                 title = line.split(':', 1)[-1].strip()
                 logging.info("ICY title: %s", title)
-                OledDisplay.get_instance().show_message(title, duration=10)
+                OledDisplay.get_instance().show_message(title, duration=60)
     threading.Thread(target=_read, args=(proc,), daemon=True).start()
 
 def playStream(stream):
