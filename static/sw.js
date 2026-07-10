@@ -2,7 +2,6 @@ var cacheName = 'radioclock';
 var filesToCache = [
   '/',
   '/static/style.css',
-  '/static/main.js',
   '/static/clock.png',
   '/static/clockoff.png',
   '/static/lulaby.png',

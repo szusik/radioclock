@@ -58,6 +58,14 @@ div#lulabyTwo {
     background-image: url('/static/lulaby2.png');
 }
 
+div#alarmToggle {
+    background-image: url('/static/alarm.png');
+}
+
+div#alarmToggle.alarm-on {
+    background-color: red;
+}
+
 div.choosen {
     background-color: chocolate;
 }

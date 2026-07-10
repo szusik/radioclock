@@ -13,6 +13,7 @@ from modules.radio import playRadio, killMusic, playLulaby, playStream
 from modules.soundvolume import getSoundVolume, volumeUp, volumeDown,setSoundVolume
 from modules.weather import getWeather,displayClear,getWeatherSched, getTempHumid
 from modules.buttons import setupButtons
+from modules.alarm import runAlarmSched, setHour as setAlarmHour, enableAlarm, disableAlarm, getStatus as getAlarmStatus
 import modules.config as cfg
 import sys
 import traceback
@@ -47,6 +48,7 @@ swagger = Swagger(app)
 clockThread = StoppableThread(target=runClock, args=(1,))
 weatherThread = StoppableThread(target=getWeatherSched)
 buttonsThread = StoppableThread(target=setupButtons)
+alarmThread = StoppableThread(target=runAlarmSched)
 @app.route('/')
 @app.route('/index.html')
 def index():
@@ -384,6 +386,126 @@ def volumeLevelSetup(vol_level):
     err = str(sys.exc_info())
     cfg.logError.error(err,logging)
     return statusAnswer("Set sound volume error")
+@app.route('/api/alarm/status', methods=['GET'])
+def alarmStatus():
+    """Get alarm status
+    ---
+    responses:
+      200:
+        description: Alarm status
+        schema:
+            type: object
+            properties:
+              enabled:
+                type: boolean
+                description: Whether the alarm is enabled.
+              hour:
+                type: integer
+                description: Hour (0-23) the alarm starts on work days.
+    """
+    try:
+      return jsonify(getAlarmStatus())
+    except:
+      err = str(sys.exc_info())
+      cfg.logError.error(err,logging)
+      return statusAnswer("Get alarm status error")
+@app.route('/api/alarm/hour', methods=['GET'])
+def alarmHourGet():
+    """Get the hour the alarm starts on work days (Mon-Fri)
+    ---
+    responses:
+      200:
+        description: Status answer
+        schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                description: Hour (0-23) the alarm starts on work days.
+    """
+    try:
+      return statusAnswer(getAlarmStatus()['hour'])
+    except:
+      err = str(sys.exc_info())
+      cfg.logError.error(err,logging)
+      return statusAnswer("Get alarm hour error")
+@app.route('/api/alarm/hour/<hour>', methods=['POST'])
+def alarmHour(hour):
+    """Set the hour the alarm starts on work days (Mon-Fri)
+    ---
+    parameters:
+      - name: hour
+        in: path
+        type: integer
+        required: true
+        default: 7
+    responses:
+      200:
+        description: Alarm status
+        schema:
+            type: object
+            properties:
+              enabled:
+                type: boolean
+                description: Whether the alarm is enabled.
+              hour:
+                type: integer
+                description: Hour (0-23) the alarm starts on work days.
+    """
+    try:
+      return jsonify(setAlarmHour(hour))
+    except ValueError as e:
+      return statusAnswer(str(e)), 400
+    except:
+      err = str(sys.exc_info())
+      cfg.logError.error(err,logging)
+      return statusAnswer("Set alarm hour error")
+@app.route('/api/alarm/enable')
+def alarmEnable():
+    """Enable the alarm
+    ---
+    responses:
+      200:
+        description: Alarm status
+        schema:
+            type: object
+            properties:
+              enabled:
+                type: boolean
+                description: Whether the alarm is enabled.
+              hour:
+                type: integer
+                description: Hour (0-23) the alarm starts on work days.
+    """
+    try:
+      return jsonify(enableAlarm())
+    except:
+      err = str(sys.exc_info())
+      cfg.logError.error(err,logging)
+      return statusAnswer("Enable alarm error")
+@app.route('/api/alarm/disable')
+def alarmDisable():
+    """Disable the alarm
+    ---
+    responses:
+      200:
+        description: Alarm status
+        schema:
+            type: object
+            properties:
+              enabled:
+                type: boolean
+                description: Whether the alarm is enabled.
+              hour:
+                type: integer
+                description: Hour (0-23) the alarm starts on work days.
+    """
+    try:
+      return jsonify(disableAlarm())
+    except:
+      err = str(sys.exc_info())
+      cfg.logError.error(err,logging)
+      return statusAnswer("Disable alarm error")
 logging.info("Starting clock")
 
 clockThread.start()
@@ -391,6 +513,8 @@ logging.info("Starting weather")
 weatherThread.start()
 logging.info("Starting buttons")
 buttonsThread.start()
+logging.info("Starting alarm scheduler")
+alarmThread.start()
 
 logging.info("All done")
 if __name__ == '__main__':

@@ -38,6 +38,7 @@
                 </div>
                 <div class="app_row">
                     <div class="app" id="soundOFF" onclick="golink(this,'/api/music/stop')"></div>
+                    <div class="app" id="alarmToggle" onclick="toggleAlarm()"></div>
                 </div>
                 <div class="app_row">
                     <div class="app" id="volumeUP" onclick="golink(this,'/api/volume/up');updateVolume()"></div>
@@ -46,8 +47,8 @@
                 <div class="app_row">
                     <div class="app" id="clockON" onclick="golink(this,'/api/clock/start')"></div>
                     <div class="app" id="clockOFF" onclick="golink(this,'/api/clock/stop')"></div>
-                </div>  
-               
+                </div>
+
             </div>
         </div>
         
@@ -82,6 +83,24 @@
             });
         }
 
+        function setAlarmState(enabled) {
+            $('#alarmToggle').toggleClass('alarm-on', enabled);
+        }
+
+        function toggleAlarm() {
+            var enabled = $('#alarmToggle').hasClass('alarm-on');
+            var apipath = enabled ? '/api/alarm/disable' : '/api/alarm/enable';
+            $.ajax(apipath).done(function(data) {
+                setAlarmState(data.enabled);
+            });
+        }
+
+        function updateAlarmStatus() {
+            $.ajax("/api/alarm/status").done(function(data) {
+                setAlarmState(data.enabled);
+            });
+        }
+
         $.ajaxSetup({ async: false });
         $(document).ajaxComplete(function(event, xhr, settings) {
             $(".state_line").text(settings.url + " : " + xhr.status + " - " + xhr.statusText);
@@ -90,8 +109,12 @@
             $(".state_line").text("Calling " + settings.url + " ... ");
         });
         $(document).ready(updateVolume());
+        $(document).ready(updateAlarmStatus());
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
         </script>
         <noscript>All fine just not dynamic</noscript>
-        <script src="/static/main.js"></script>
     </body>
 </html>

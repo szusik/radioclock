@@ -108,3 +108,5 @@ csvtest.py
 test.csv
 config.json
 temp.csv
+alarm_state.json
+radioclock.log*
