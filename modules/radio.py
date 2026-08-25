@@ -81,10 +81,11 @@ def killMusic():
 def playLulaby(id):
     command = "amixer -c 1 set Speaker"
     if id == '1':
-        command += " "+cfg.song_1_vol+" && mplayer "+cfg.song_1
+        command += " "+cfg.song_1_vol+" && mpv "+cfg.song_1
     elif id == '2':
-        command += " "+cfg.song_2_vol+" && mplayer "+cfg.song_2
+        command += " "+cfg.song_2_vol+" && mpv "+cfg.song_2
     try:
+        logging.info("Playing song "+str(id))
         res = subprocess.call(command, shell = True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
         logging.error("Unable to play lulaby")
